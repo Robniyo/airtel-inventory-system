@@ -1,25 +1,14 @@
-# --- STAGE 1: Build ---
+# Step 1: Build Stage
 FROM maven:3.8.5-openjdk-17 AS build
 WORKDIR /app
-
-# Cache dependencies first (makes future builds much faster)
-COPY pom.xml .
-RUN mvn dependency:go-offline
-
-# Copy source and build the JAR
-COPY src ./src
+COPY . .
 RUN mvn clean package -DskipTests
 
-# --- STAGE 2: Run ---
+# Step 2: Run Stage
+# Changed from openjdk:17-jdk-slim to eclipse-temurin
 FROM eclipse-temurin:17-jre-alpine
 WORKDIR /app
-
-# The wildcard *.jar handles cases where Maven adds version numbers
-# Renaming it to app.jar here makes the ENTRYPOINT consistent
+# Using wildcard to ensure it finds the JAR regardless of naming
 COPY --from=build /app/target/*.jar app.jar
-
-# Standard Spring Boot port
 EXPOSE 8080
-
-# -Xmx512m prevents Render from killing the app for high RAM usage
-ENTRYPOINT ["java", "-Xmx512m", "-jar", "app.jar"]
+ENTRYPOINT ["java", "-jar", "app.jar"]
