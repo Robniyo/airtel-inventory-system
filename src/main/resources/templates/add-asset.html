@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Add Asset</title>
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+
+<div class="nav">
+    <a href="/">Dashboard</a>
+    <a href="/assets">Assets</a>
+</div>
+
+<h2>Add Asset</h2>
+
+<form action="/save" method="post">
+    Tag: <input type="text" name="assetTag"><br><br>
+    Type: <input type="text" name="type"><br><br>
+    Brand: <input type="text" name="brand"><br><br>
+    Model: <input type="text" name="model"><br><br>
+
+    <button type="submit">Save</button>
+</form>
+
+</body>
+</html>

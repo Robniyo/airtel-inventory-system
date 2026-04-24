@@ -1,0 +1,257 @@
+/* =========================
+   GLOBAL
+========================= */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: Arial, sans-serif;
+}
+
+body {
+    background: #f4f4f4;
+    color: #2c2c2c;
+}
+
+/* =========================
+   NAVBAR
+========================= */
+.navbar {
+    background: #FF0000; /* Airtel Red */
+    color: white;
+    padding: 15px 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.navbar h2 {
+    font-size: 18px;
+}
+
+.navbar a {
+    color: white;
+    text-decoration: none;
+    margin-left: 12px;
+    padding: 8px 12px;
+    border-radius: 4px;
+    transition: 0.3s;
+}
+
+.navbar a:hover {
+    background: rgba(255,255,255,0.2);
+}
+
+/* =========================
+   CONTAINER
+========================= */
+.container {
+    width: 90%;
+    margin: auto;
+    padding: 20px;
+}
+
+/* =========================
+   SECTIONS (Dashboard Navigation)
+========================= */
+.section {
+    display: none;
+    background: white;
+    padding: 20px;
+    border-radius: 8px;
+    margin-top: 20px;
+}
+
+.section.active {
+    display: block;
+}
+
+/* =========================
+   CARDS (Dashboard Stats)
+========================= */
+.cards {
+    display: flex;
+    gap: 15px;
+    flex-wrap: wrap;
+}
+
+.card {
+    background: white;
+    padding: 20px;
+    width: 200px;
+    border-radius: 8px;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+    text-align: center;
+}
+
+.card h3 {
+    color: #2c2c2c;
+}
+
+.card p {
+    font-size: 22px;
+    font-weight: bold;
+    color: #FF0000;
+}
+
+/* =========================
+   FORMS
+========================= */
+.form-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px;
+    margin-bottom: 20px;
+}
+
+.form-grid input,
+.form-grid select {
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+}
+
+.form-grid button {
+    grid-column: span 3;
+    padding: 10px;
+    background: #FF0000;
+    color: white;
+    border: none;
+    cursor: pointer;
+    border-radius: 4px;
+}
+
+.form-grid button:hover {
+    opacity: 0.9;
+}
+
+/* =========================
+   TABLES
+========================= */
+table {
+    width: 100%;
+    border-collapse: collapse;
+    background: white;
+    margin-top: 15px;
+    border-radius: 6px;
+    overflow: hidden;
+}
+
+table th {
+    background: #FF0000;
+    color: white;
+    padding: 10px;
+}
+
+table td {
+    padding: 10px;
+    border-bottom: 1px solid #eee;
+}
+
+/* =========================
+   BUTTONS (UNIFIED)
+========================= */
+.btn {
+    padding: 6px 10px;
+    text-decoration: none;
+    border-radius: 4px;
+    color: white;
+    display: inline-block;
+    font-size: 13px;
+}
+
+.btn-edit {
+    background: #FF0000;
+}
+
+.btn-delete {
+    background: #2c2c2c;
+}
+
+.btn:hover {
+    opacity: 0.85;
+}
+
+/* =========================
+   STATUS LABELS
+========================= */
+.status-green {
+    color: green;
+    font-weight: bold;
+}
+
+.status-red {
+    color: #FF0000;
+    font-weight: bold;
+}
+
+/* =========================
+   LOGIN / FORMS BOX
+========================= */
+.form-box {
+    background: white;
+    padding: 20px;
+    width: 400px;
+    margin: 20px auto;
+    border-radius: 8px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+}
+
+.form-box input {
+    width: 100%;
+    padding: 10px;
+    margin-top: 8px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+}
+
+.form-box button {
+    width: 100%;
+    margin-top: 15px;
+    padding: 10px;
+    background: #FF0000;
+    color: white;
+    border: none;
+    cursor: pointer;
+}
+
+.form-box button:hover {
+    opacity: 0.9;
+}
+
+/* =========================
+   DASHBOARD LAYOUT NAV (TABS)
+========================= */
+.nav-tabs {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 20px;
+}
+
+.nav-tabs button {
+    padding: 10px 15px;
+    border: none;
+    cursor: pointer;
+    background: #2c2c2c;
+    color: white;
+    border-radius: 4px;
+}
+
+.nav-tabs button.active {
+    background: #FF0000;
+}
+
+/* =========================
+   SMALL UTILITIES
+========================= */
+.text-center {
+    text-align: center;
+}
+
+.mt-10 {
+    margin-top: 10px;
+}
+
+.mt-20 {
+    margin-top: 20px;
+}

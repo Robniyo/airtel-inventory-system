@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Edit Asset</title>
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+
+<div class="nav">
+    <a href="/">Dashboard</a>
+    <a href="/assets">Assets</a>
+</div>
+
+<h2>Edit Asset</h2>
+
+<form action="/update" method="post">
+
+    <input type="hidden" name="id" th:value="${asset.id}">
+
+    Tag: <input type="text" name="assetTag" th:value="${asset.assetTag}"><br><br>
+    Type: <input type="text" name="type" th:value="${asset.type}"><br><br>
+    Brand: <input type="text" name="brand" th:value="${asset.brand}"><br><br>
+    Model: <input type="text" name="model" th:value="${asset.model}"><br><br>
+
+    <button type="submit">Update</button>
+</form>
+
+</body>
+</html>

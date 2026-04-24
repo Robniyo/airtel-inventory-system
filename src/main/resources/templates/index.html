@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Airtel | Resource Intelligence Portal</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --airtel-red: #E40000;
+            --dark: #1A1A1B;
+            --bg: #F8F9FA;
+            --white: #ffffff;
+            --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: var(--bg);
+            color: var(--dark);
+            overflow-x: hidden;
+        }
+
+        /* --- Navbar --- */
+        .navbar {
+            background: var(--white);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 8%;
+            height: 80px;
+            box-shadow: 0 2px 15px rgba(0,0,0,0.05);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+
+        .navbar h2 {
+            color: var(--airtel-red);
+            margin: 0;
+            font-weight: 800;
+            font-size: 28px;
+            letter-spacing: -1.5px;
+        }
+
+        .nav-links { display: flex; align-items: center; gap: 10px; }
+
+        .nav-links a {
+            text-decoration: none;
+            color: #65676B;
+            font-weight: 600;
+            padding: 10px 18px;
+            font-size: 14px;
+            transition: var(--transition);
+            border-radius: 10px;
+        }
+
+        .nav-links a:hover {
+            background: rgba(228, 0, 0, 0.05);
+            color: var(--airtel-red);
+        }
+
+        .btn-login {
+            background: var(--airtel-red) !important;
+            color: white !important;
+            box-shadow: 0 4px 12px rgba(228, 0, 0, 0.2);
+        }
+
+        /* --- Hero Section --- */
+        .hero {
+            background: linear-gradient(135deg, #E40000 0%, #b30000 100%);
+            color: white;
+            padding: 100px 8% 140px;
+            text-align: center;
+            position: relative;
+        }
+
+        .hero h1 {
+            font-size: 56px;
+            margin-bottom: 20px;
+            font-weight: 800;
+            letter-spacing: -2px;
+            animation: fadeInUp 0.6s ease;
+        }
+
+        .hero p {
+            font-size: 18px;
+            opacity: 0.9;
+            max-width: 650px;
+            margin: 0 auto 35px;
+            animation: fadeInUp 0.8s ease;
+        }
+
+        /* --- Feature Cards --- */
+        .container { padding: 0 8% 80px; position: relative; }
+
+        .features {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 30px;
+            margin-top: -60px; /* Overlap effect */
+        }
+
+        .card {
+            background: white;
+            padding: 40px 30px;
+            border-radius: 20px;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.08);
+            text-align: center;
+            transition: var(--transition);
+            border: 1px solid rgba(0,0,0,0.02);
+        }
+
+        .card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 20px 45px rgba(0,0,0,0.12);
+        }
+
+        .card h3 {
+            color: var(--grey);
+            font-size: 14px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 15px;
+        }
+
+        .stat-number {
+            font-size: 48px;
+            font-weight: 800;
+            color: var(--dark);
+            display: block;
+            margin: 10px 0;
+        }
+
+        /* --- Buttons --- */
+        .btn-white {
+            background: white;
+            color: var(--airtel-red);
+            padding: 16px 35px;
+            border-radius: 12px;
+            text-decoration: none;
+            font-weight: 700;
+            display: inline-block;
+            transition: var(--transition);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+
+        .btn-white:hover {
+            transform: scale(1.05);
+            background: #f8f8f8;
+        }
+
+        /* --- Animations --- */
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* --- Footer --- */
+        .footer {
+            text-align: center;
+            padding: 60px;
+            background: var(--dark);
+            color: #888;
+            font-size: 13px;
+        }
+    </style>
+</head>
+<body>
+
+<nav class="navbar">
+    <h2>airtel</h2>
+
+    <div class="nav-links">
+        <a href="/">Home</a>
+
+        <span th:if="${session.user != null}">
+            <a href="/dashboard">Dashboard</a>
+            <a href="/dashboard?tab=fleet">Inventory</a>
+            <a th:href="@{/logout}" style="color: var(--airtel-red); font-weight: 800;">Logout</a>
+        </span>
+
+        <span th:if="${session.user == null}">
+            <a href="/login" class="btn-login">Staff Login</a>
+        </span>
+    </div>
+</nav>
+
+<header class="hero">
+    <h1>Smart Asset Intelligence</h1>
+    <p>A central nervous system for Airtel's corporate hardware. Track, manage, and deploy resources with absolute precision.</p>
+    
+    <div th:if="${session.user == null}">
+        <a href="/login" class="btn-white">Enter Portal</a>
+    </div>
+    <div th:if="${session.user != null}">
+        <a href="/dashboard" class="btn-white">Access Dashboard</a>
+    </div>
+</header>
+
+<div class="container">
+
+    <div class="features">
+        
+        <div class="card">
+            <h3>Total Assets</h3>
+            <span class="stat-number" th:text="${session.user != null ? totalAssets : '--'}">0</span>
+            <p style="color:#888; font-size:14px;">Connected Resources</p>
+        </div>
+
+        <div class="card">
+            <h3>Deployed Items</h3>
+            <span class="stat-number" th:text="${session.user != null ? assignedCount : '--'}">0</span>
+            <p style="color:#888; font-size:14px;">Active Assignments</p>
+        </div>
+
+        <div class="card" style="display: flex; flex-direction: column; justify-content: center; align-items: center;">
+            <div th:if="${session.user == null}">
+                <p style="color:#666; font-size: 14px; margin-bottom: 20px;">Authentication required for inventory management.</p>
+                <a href="/login" style="color: var(--airtel-red); font-weight: 800; text-decoration: none; font-size: 16px;">Sign In &rarr;</a>
+            </div>
+            
+            <div th:if="${session.user != null}">
+                <p style="font-size: 14px; color: #888;">Active User:</p>
+                <strong style="font-size: 18px; color: var(--dark);" th:text="${session.user.name}">User Name</strong>
+                <div style="margin-top: 20px;">
+                    <a href="/dashboard?tab=fleet" style="color: var(--airtel-red); font-weight: 800; text-decoration: none;">Manage Fleet &rarr;</a>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <section style="margin-top: 100px; text-align: center; animation: fadeInUp 1s ease;">
+        <h2 style="font-weight: 800; font-size: 32px; letter-spacing: -1px;">Unified Infrastructure Management</h2>
+        <p style="color: #65676B; max-width: 750px; margin: 20px auto; line-height: 1.8;">
+            The Airtel Inventory Portal streamlines internal hardware logistics. From high-performance laptops to critical mobile devices, 
+            our system ensures that every piece of corporate property is tracked from procurement to deployment.
+        </p>
+    </section>
+
+</div>
+
+<footer class="footer">
+    <div style="margin-bottom: 20px;">
+        <strong style="color:white; font-size: 18px; letter-spacing: -1px;">airtel</strong>
+    </div>
+    &copy; 2026 Airtel IT Solutions. All rights reserved. <br>
+    <span style="opacity: 0.5;">Resource Intelligence Division</span>
+</footer>
+
+</body>
+</html>

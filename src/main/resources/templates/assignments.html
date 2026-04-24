@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Assignments</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body>
+
+<div class="container">
+
+    <h2>Asset Assignments</h2>
+
+    <!-- NAV -->
+    <div class="nav">
+        <a href="/dashboard">Dashboard</a>
+        <a href="/assets">Assets</a>
+        <a href="/assignments" class="active">Assignments</a>
+        <a href="/logout">Logout</a>
+    </div>
+
+    <!-- ================= ASSIGN FORM ================= -->
+    <div class="form-box">
+        <h3>Assign Asset</h3>
+
+        <form action="/assignments/assign" method="post">
+
+            <select name="assetId" required>
+                <option value="">Select Asset</option>
+                <option th:each="a : ${assets}"
+                        th:value="${a.id}"
+                        th:text="${a.name + ' (' + a.status + ')'}">
+                </option>
+            </select>
+
+            <select name="userId" required>
+                <option value="">Select User</option>
+                <option th:each="u : ${users}"
+                        th:value="${u.id}"
+                        th:text="${u.name + ' (' + u.email + ')'}">
+                </option>
+            </select>
+
+            <button type="submit">Assign</button>
+        </form>
+    </div>
+
+    <!-- ================= TABLE ================= -->
+    <div class="table-box">
+        <h3>All Assignments</h3>
+
+        <table>
+            <thead>
+            <tr>
+                <th>Asset</th>
+                <th>User</th>
+                <th>Issue Date</th>
+                <th>Return Date</th>
+                <th>Status</th>
+                <th>Action</th>
+            </tr>
+            </thead>
+
+            <tbody>
+            <tr th:each="a : ${assignments}">
+                <td th:text="${a.asset.name}"></td>
+                <td th:text="${a.user.name}"></td>
+                <td th:text="${a.issueDate}"></td>
+                <td th:text="${a.returnDate}"></td>
+                <td th:text="${a.status}"></td>
+
+                <td>
+                    <a th:if="${a.status.name() == 'ISSUED'}"
+                       th:href="@{'/assignments/return/' + ${a.id}}"
+                       class="return-btn">
+                        Return
+                    </a>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+
+</div>
+
+</body>
+</html>

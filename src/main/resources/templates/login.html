@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - Airtel Inventory</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap" rel="stylesheet">
+    <style>
+        :root { 
+            --airtel-red: #E40000; 
+            --dark: #333; 
+            --bg: #f4f7f6; 
+            --success: #00A650;
+        }
+        
+        body { 
+            font-family: 'Inter', sans-serif; 
+            background: var(--bg); 
+            margin: 0; 
+            display: flex; 
+            align-items: center; 
+            justify-content: center; 
+            height: 100vh; 
+        }
+        
+        .container { 
+            width: 100%; 
+            max-width: 400px; 
+            padding: 20px; 
+        }
+        
+        .login-card { 
+            background: #fff; 
+            padding: 40px; 
+            border-radius: 12px; 
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1); 
+            border-top: 5px solid var(--airtel-red); 
+        }
+        
+        h2 { 
+            text-align: center; 
+            color: var(--dark); 
+            margin-bottom: 30px; 
+            font-weight: 600; 
+            letter-spacing: -1.5px;
+            font-size: 28px;
+        }
+        
+        .form-box { display: flex; flex-direction: column; }
+        .input-group { margin-bottom: 20px; }
+        .input-group label { display: block; margin-bottom: 8px; font-size: 14px; font-weight: 600; color: #666; }
+        
+        input { 
+            width: 100%; 
+            padding: 12px; 
+            border: 1px solid #ddd; 
+            border-radius: 8px; 
+            box-sizing: border-box; 
+            font-size: 14px; 
+            transition: 0.3s; 
+            outline: none; 
+        }
+        
+        input:focus { 
+            border-color: var(--airtel-red); 
+            box-shadow: 0 0 5px rgba(228, 0, 0, 0.2); 
+        }
+        
+        .btn-submit { 
+            background: var(--airtel-red); 
+            color: white; 
+            border: none; 
+            padding: 14px; 
+            border-radius: 8px; 
+            font-size: 16px; 
+            font-weight: 600; 
+            cursor: pointer; 
+            transition: 0.3s; 
+            margin-top: 10px; 
+        }
+        
+        .btn-submit:hover { 
+            background: #c10000; 
+            transform: translateY(-1px); 
+        }
+        
+        .error-msg { 
+            background: #fff1f1; 
+            border: 1px solid #ffcccc; 
+            padding: 10px; 
+            border-radius: 6px; 
+            margin-top: 15px; 
+            text-align: center; 
+        }
+        
+        .footer-link { 
+            text-align: center; 
+            margin-top: 25px; 
+            font-size: 14px; 
+            color: #777; 
+        }
+        
+        .footer-link a { 
+            color: var(--airtel-red); 
+            text-decoration: none; 
+            font-weight: 600; 
+        }
+        
+        .footer-link a:hover { 
+            text-decoration: underline; 
+        }
+
+        .success-msg {
+            color: var(--success);
+            text-align: center;
+            margin-bottom: 15px;
+            font-size: 14px;
+            font-weight: 600;
+            background: #e6f6ec;
+            padding: 10px;
+            border-radius: 6px;
+            border: 1px solid #c2e7d0;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div class="login-card">
+        <h2>airtel <span style="color: var(--dark); font-weight: 300;">Login</span></h2>
+
+        <div th:if="${param.signupSuccess}" class="success-msg">
+            Account created! You can now log in.
+        </div>
+
+        <form th:action="@{/login}" method="post" class="form-box">
+
+            <div class="input-group">
+                <label>Email Address</label>
+                <input type="email" name="email" placeholder="name@airtel.com" required>
+            </div>
+
+            <div class="input-group">
+                <label>Password</label>
+                <input type="password" name="password" placeholder="••••••••" required>
+            </div>
+
+            <button type="submit" class="btn-submit">Sign In</button>
+
+            <div th:if="${error}" class="error-msg">
+                <p th:text="${error}" style="color: #e40000; font-size: 0.85em; margin: 0;"></p>
+            </div>
+
+            <div class="footer-link">
+                Don't have an account? <a th:href="@{/signup}">Sign Up here</a>
+            </div>
+
+        </form>
+    </div>
+</div>
+
+</body>
+</html>
