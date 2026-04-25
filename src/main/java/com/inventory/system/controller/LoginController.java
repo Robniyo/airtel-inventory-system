@@ -18,57 +18,61 @@ public class LoginController {
     @Autowired
     private UserRepository userRepository;
 
-    // Hardcoded Master Admin Credentials
-    private static final String ADMIN_EMAIL = "adminAirtel@gmail.com";
-    private static final String ADMIN_PASS = "AirtelPass";
+    // Static Admin Credentials as requested
+    private static final String ADMIN_USER = "24RP05300";
+    private static final String ADMIN_PASS = "24RP12881";
 
     @GetMapping("/login")
-    public String showLoginPage() {
+    public String showLoginPage(HttpSession session) {
+        // If already logged in, skip login page
+        if (session.getAttribute("user") != null) {
+            return "redirect:/dashboard";
+        }
         return "login"; 
     }
 
     @PostMapping("/login")
-    public String processLogin(@RequestParam String email, 
+    public String processLogin(@RequestParam String username, 
                                @RequestParam String password, 
+                               @RequestParam String role, 
                                HttpSession session,
                                Model model) {
         
-        // 1. Check for Master Admin Access first
-        if (ADMIN_EMAIL.equalsIgnoreCase(email) && ADMIN_PASS.equals(password)) {
-            User admin = new User();
-            admin.setName("System Administrator");
-            admin.setEmail(ADMIN_EMAIL);
-            // If your User entity has a department field, set it here
-            session.setAttribute("user", admin); 
-            return "redirect:/dashboard";
+        // ADMIN PATH
+        if ("admin".equalsIgnoreCase(role)) {
+            if (ADMIN_USER.equals(username) && ADMIN_PASS.equals(password)) {
+                User admin = new User();
+                admin.setName("Airtel Administrator");
+                admin.setUsername(ADMIN_USER);
+                admin.setEmail("admin@airtel.com"); // Placeholder
+                
+                session.setAttribute("user", admin);
+                session.setAttribute("role", "ADMIN");
+                return "redirect:/dashboard";
+            } else {
+                model.addAttribute("error", "Invalid Admin Credentials");
+                return "login";
+            }
         }
 
-        // 2. Check Database for Staff Users using Optional
-        Optional<User> userOpt = userRepository.findByEmail(email);
-        
+        // USER (STAFF) PATH
+        Optional<User> userOpt = userRepository.findByUsername(username);
         if (userOpt.isPresent()) {
             User user = userOpt.get();
-            // Check if password matches
             if (user.getPassword().equals(password)) {
                 session.setAttribute("user", user);
+                session.setAttribute("role", "STAFF");
                 return "redirect:/dashboard";
             }
         }
 
-        // 3. If everything fails, return to login with error
-        model.addAttribute("error", "Invalid Airtel credentials. Please try again.");
+        model.addAttribute("error", "Invalid Staff Credentials or Account not found");
         return "login";
     }
 
-    /**
-     * Standard Logout:
-     * Clears the session and returns to the login portal.
-     */
     @GetMapping("/logout")
     public String logout(HttpSession session) {
-        if (session != null) {
-            session.invalidate(); 
-        }
-        return "redirect:/login";
+        session.invalidate();
+        return "redirect:/login?logout=true";
     }
 }
