@@ -42,7 +42,7 @@
     <div class="nav-links">
         <div onclick="switchSection('home')" id="nav-home" class="nav-item active">Overview</div>
         <div onclick="switchSection('fleet')" id="nav-fleet" class="nav-item">Fleet Manager</div>
-        <div th:if="${session.role == 'ADMIN'}" onclick="switchSection('requests')" id="nav-requests" class="nav-item">Approval Hub</div>
+        <div th:if="${role == 'ADMIN'}" onclick="switchSection('requests')" id="nav-requests" class="nav-item">Approval Hub</div>
         <a th:href="@{/logout}" class="nav-item" style="color:var(--airtel-red)">Sign Out</a>
     </div>
 </nav>
@@ -50,9 +50,14 @@
 <div class="container">
 
     <div id="section-home" class="section active">
-        <div style="background: white; padding: 30px; border-radius: 20px; border-left: 6px solid var(--airtel-red); box-shadow: var(--shadow);">
-            <h2 th:text="${session.role == 'ADMIN' ? 'Admin Dashboard' : 'Staff Portal'}">Role</h2>
-            <p th:text="'Welcome, ' + ${session.user.name}">User</p>
+        <div th:if="${role == 'ADMIN'}" style="background: white; padding: 30px; border-radius: 20px; border-left: 6px solid var(--airtel-red); box-shadow: var(--shadow);">
+            <h2>Admin Controls</h2>
+            <p>Manage Assets and Requests here.</p>
+        </div>
+
+        <div th:if="${role == 'STAFF'}" style="background: white; padding: 30px; border-radius: 20px; border-left: 6px solid var(--blue); box-shadow: var(--shadow);">
+            <h2>Staff Portal</h2>
+            <p>Welcome back, <span th:text="${user.name}" style="font-weight: 700;">User</span></p>
         </div>
         
         <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px; margin-top: 30px;">
@@ -68,18 +73,18 @@
     </div>
 
     <div id="section-fleet" class="section">
-        <div class="admin-box" th:if="${session.role == 'ADMIN'}">
+        <div class="admin-box" th:if="${role == 'ADMIN'}">
             <h3 th:text="${asset.id != null ? 'Edit Resource' : 'Register New Resource'}">Manage</h3>
             <form th:action="@{/admin/assets/save}" th:object="${asset}" method="post">
                 <input type="hidden" th:field="*{id}">
-                <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 15px;">
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px;">
                     <div>
                         <label style="font-size: 11px; font-weight: 700;">Asset Name</label>
-                        <input type="text" th:field="*{name}" placeholder="Asset Name" required>
+                        <input type="text" th:field="*{name}" placeholder="e.g. MacBook Pro" required>
                     </div>
                     <div>
                         <label style="font-size: 11px; font-weight: 700;">Serial Number</label>
-                        <input type="text" th:field="*{serialNumber}" placeholder="Serial Number" required>
+                        <input type="text" th:field="*{serialNumber}" placeholder="e.g. SN-9980" required>
                     </div>
                     <div>
                         <label style="font-size: 11px; font-weight: 700;">Category</label>
@@ -100,6 +105,7 @@
                 <thead>
                     <tr>
                         <th>Resource</th>
+                        <th>Category</th>
                         <th>Status</th>
                         <th>Action</th>
                     </tr>
@@ -107,15 +113,18 @@
                 <tbody>
                     <tr th:each="a : ${assets}">
                         <td th:text="${a.name}">Name</td>
-                        <td><span th:text="${a.status}" th:class="${a.status.toString() == 'AVAILABLE' ? 'badge bg-green' : 'badge bg-red'}"></span></td>
+                        <td th:text="${a.category}" style="font-size: 12px; color: var(--grey);">Cat</td>
                         <td>
-                            <div th:if="${session.role == 'ADMIN'}">
+                            <span th:text="${a.status}" th:class="${a.status.toString() == 'AVAILABLE' ? 'badge bg-green' : 'badge bg-red'}"></span>
+                        </td>
+                        <td>
+                            <div th:if="${role == 'ADMIN'}">
                                 <a th:href="@{/dashboard/edit/{id}(id=${a.id})}" style="color:var(--blue); font-weight:700; margin-right:15px; text-decoration:none;">Edit</a>
                                 <a th:href="@{/admin/assets/delete/{id}(id=${a.id})}" style="color:var(--airtel-red); font-weight:700; text-decoration:none;">Delete</a>
                             </div>
-                            <div th:if="${session.role == 'STAFF'}">
-                                <a th:if="${a.status.toString() == 'AVAILABLE'}" th:href="@{/assets/request/{id}(id=${a.id})}" class="btn-main">Request</a>
-                                <span th:if="${a.status.toString() != 'AVAILABLE'}" style="color: var(--grey); font-size: 13px;">Occupied</span>
+                            <div th:if="${role == 'STAFF'}">
+                                <a th:if="${a.status.toString() == 'AVAILABLE'}" th:href="@{/assets/request/{id}(id=${a.id})}" class="btn-main">Request Item</a>
+                                <span th:if="${a.status.toString() != 'AVAILABLE'}" style="color: var(--grey); font-size: 13px; font-style: italic;">Currently Occupied</span>
                             </div>
                         </td>
                     </tr>
@@ -124,19 +133,28 @@
         </div>
     </div>
 
-    <div id="section-requests" class="section" th:if="${session.role == 'ADMIN'}">
+    <div id="section-requests" class="section" th:if="${role == 'ADMIN'}">
         <div class="table-container">
             <h3>Pending Requests</h3>
             <table th:if="${not #lists.isEmpty(pendingRequests)}">
-                <tr th:each="req : ${pendingRequests}">
-                    <td th:text="${req.user.name}">Staff</td>
-                    <td th:text="${req.asset.name}">Asset</td>
-                    <td>
-                        <a th:href="@{/admin/requests/approve/{id}(id=${req.id})}" class="btn-main" style="background:var(--success); font-size: 12px;">Approve</a>
-                    </td>
-                </tr>
+                <thead>
+                    <tr>
+                        <th>Staff Member</th>
+                        <th>Resource Requested</th>
+                        <th>Control</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr th:each="req : ${pendingRequests}">
+                        <td th:text="${req.user.name}">Staff</td>
+                        <td th:text="${req.asset.name}">Asset</td>
+                        <td>
+                            <a th:href="@{/admin/requests/approve/{id}(id=${req.id})}" class="btn-main" style="background:var(--success); font-size: 12px;">Approve Request</a>
+                        </td>
+                    </tr>
+                </tbody>
             </table>
-            <p th:if="${#lists.isEmpty(pendingRequests)}" style="color: var(--grey); text-align: center;">No pending requests.</p>
+            <p th:if="${#lists.isEmpty(pendingRequests)}" style="color: var(--grey); text-align: center; padding: 20px;">No pending requests found in the hub.</p>
         </div>
     </div>
 
@@ -158,9 +176,8 @@
         if(navTarget) navTarget.classList.add('active');
     }
 
-    // This checks the variable passed from Java to auto-open the Fleet tab when editing
     window.onload = function() {
-        var shouldOpenFleet = /*[[${openInventory}]]*/ false;
+        var shouldOpenFleet = [[${openInventory}]];
         if (shouldOpenFleet) {
             switchSection('fleet');
         }
