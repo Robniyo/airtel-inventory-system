@@ -11,7 +11,7 @@ import java.util.Optional;
 @Controller
 public class LoginController {
 
-    @Autowired(required = false)
+    @Autowired
     private UserRepository userRepository;
 
     @GetMapping("/login")
@@ -21,38 +21,24 @@ public class LoginController {
 
     @PostMapping("/login")
     public String login(@RequestParam String username, @RequestParam String password, HttpSession session) {
-        // 1. HARDCODED ADMIN (No Database required)
-        // Use your Reg Number for both
+        // 1. Check for Admin First
         if ("24RP05300".equals(username) && "24RP05300".equals(password)) {
             User admin = new User();
-            admin.setName("Airtel Admin");
             admin.setUsername("24RP05300");
+            admin.setName("System Administrator");
             session.setAttribute("user", admin);
             session.setAttribute("role", "ADMIN");
             return "redirect:/dashboard";
         }
 
-        // 2. STAFF CHECK (With Error Protection)
-        try {
-            if (userRepository != null) {
-                Optional<User> userOpt = userRepository.findByUsername(username);
-                if (userOpt.isPresent() && userOpt.get().getPassword().equals(password)) {
-                    session.setAttribute("user", userOpt.get());
-                    session.setAttribute("role", "STAFF");
-                    return "redirect:/dashboard";
-                }
-            }
-        } catch (Exception e) {
-            // Log the error but don't show Whitelabel 500
-            System.out.println("Database Login Error: " + e.getMessage());
+        // 2. Check Database for Users
+        Optional<User> userOpt = userRepository.findByUsername(username);
+        if (userOpt.isPresent() && userOpt.get().getPassword().equals(password)) {
+            session.setAttribute("user", userOpt.get());
+            session.setAttribute("role", "STAFF");
+            return "redirect:/dashboard";
         }
 
         return "redirect:/login?error";
-    }
-
-    @GetMapping("/logout")
-    public String logout(HttpSession session) {
-        if (session != null) session.invalidate();
-        return "redirect:/login";
     }
 }
