@@ -28,21 +28,19 @@ public class LoginController {
     }
 
     @PostMapping("/signup")
-    public String registerUser(@ModelAttribute User user, Model model) {
+    public String registerUser(@ModelAttribute User user) {
         try {
-            // Set default role for new signups
-            user.setRole("STAFF"); 
+            // Role is removed to fix the 'cannot find symbol' error
             userRepository.save(user);
             return "redirect:/login?success";
         } catch (Exception e) {
-            // If database fails, this prevents the 500 Whitelabel error
             return "redirect:/signup?error";
         }
     }
 
     @PostMapping("/login")
     public String login(@RequestParam String username, @RequestParam String password, HttpSession session) {
-        // Static Admin Check for your specific ID
+        // Hardcoded Admin Access for you
         if ("24RP05300".equals(username) && "admin123".equals(password)) {
             User admin = new User();
             admin.setName("System Admin");
@@ -52,10 +50,11 @@ public class LoginController {
             return "redirect:/dashboard";
         }
 
-        // Database check for regular users
-        Optional<User> user = userRepository.findByUsername(username);
-        if (user.isPresent() && user.get().getPassword().equals(password)) {
-            session.setAttribute("user", user.get());
+        // Database check for Staff
+        Optional<User> userOpt = userRepository.findByUsername(username);
+        if (userOpt.isPresent() && userOpt.get().getPassword().equals(password)) {
+            User user = userOpt.get();
+            session.setAttribute("user", user);
             session.setAttribute("role", "STAFF");
             return "redirect:/dashboard";
         }
