@@ -9,9 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
 import javax.servlet.http.HttpSession;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -27,52 +25,30 @@ public class DashboardController {
     @GetMapping("/dashboard")
     public String showDashboard(HttpSession session, Model model) {
         User currentUser = (User) session.getAttribute("user");
-        if (currentUser == null) return "redirect:/login";
-        return prepareDashboardView(model, new Asset(), false, session);
-    }
+        String role = (String) session.getAttribute("role");
 
-    @GetMapping("/dashboard/edit/{id}")
-    public String editAsset(@PathVariable Long id, HttpSession session, Model model) {
-        if (session.getAttribute("user") == null || !"ADMIN".equals(session.getAttribute("role"))) {
-            return "redirect:/dashboard";
+        if (currentUser == null) {
+            return "redirect:/login";
         }
-        Asset assetToEdit = assetRepository.findById(id).orElse(new Asset());
-        return prepareDashboardView(model, assetToEdit, true, session);
-    }
 
-    private String prepareDashboardView(Model model, Asset asset, boolean openFleet, HttpSession session) {
-        try {
-            List<Asset> allAssets = assetRepository.findAll();
-            if (allAssets == null) allAssets = new ArrayList<>();
-            
+        List<Asset> allAssets = assetRepository.findAll();
+        model.addAttribute("assets", allAssets);
+        model.addAttribute("totalAssets", allAssets.size());
+        model.addAttribute("user", currentUser);
+        model.addAttribute("role", role);
+
+        // Logic for ADMIN (24RP05300)
+        if ("ADMIN".equals(role)) {
             List<AssetRequest> allRequests = requestRepository.findAll();
-            if (allRequests == null) allRequests = new ArrayList<>();
-
-            List<AssetRequest> pendingRequests = allRequests.stream()
-                    .filter(r -> r != null && r.getStatus() != null && "PENDING".equalsIgnoreCase(r.getStatus().toString()))
-                    .collect(Collectors.toList());
-
-            model.addAttribute("assets", allAssets);
-            model.addAttribute("asset", asset); 
-            model.addAttribute("pendingRequests", pendingRequests); 
-            model.addAttribute("totalAssets", allAssets.size());
-            
-            long assigned = allAssets.stream()
-                    .filter(a -> a != null && a.getStatus() != null && "ASSIGNED".equalsIgnoreCase(a.getStatus().toString()))
-                    .count();
-                    
-            model.addAttribute("assignedCount", assigned);
-            model.addAttribute("pendingCount", pendingRequests.size());
-            model.addAttribute("openInventory", openFleet);
-        } catch (Exception e) {
-            // Fallback so the page doesn't crash
-            model.addAttribute("assets", new ArrayList<>());
-            model.addAttribute("asset", new Asset());
-            model.addAttribute("totalAssets", 0);
-            model.addAttribute("assignedCount", 0);
-            model.addAttribute("pendingCount", 0);
-        }
+            model.addAttribute("pendingRequests", allRequests.stream()
+                .filter(r -> "PENDING".equals(r.getStatus().toString()))
+                .collect(Collectors.toList()));
+            model.addAttribute("isAdmin", true);
+            return "dashboard"; // Loads the admin version of dashboard
+        } 
         
-        return "dashboard";
+        // Logic for STAFF
+        model.addAttribute("isAdmin", false);
+        return "dashboard"; 
     }
 }
