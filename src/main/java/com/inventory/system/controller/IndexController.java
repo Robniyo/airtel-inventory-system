@@ -8,8 +8,7 @@ public class IndexController {
 
     @GetMapping("/")
     public String index() {
-        // This ensures that hitting the main URL takes you straight to login
-        // No need for an index.html file!
-        return "redirect:/login";
+        // This will load src/main/resources/templates/index.html
+        return "index"; 
     }
 }
