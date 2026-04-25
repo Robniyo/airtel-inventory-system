@@ -12,28 +12,20 @@ public class Asset {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    // 1. Name
     @Column(nullable = false)
     private String name;
 
-    // 2. Serial Number (Unique)
     @Column(unique = true, nullable = false)
     private String serialNumber;
 
-    // 3. Brand
     private String brand;
-
-    // 4. Category
     private String category;
 
-    // 5. Purchase Date
     @DateTimeFormat(pattern = "yyyy-MM-dd")
     private LocalDate purchaseDate;
 
-    // 6. Price
     private Double price;
 
-    // 7. Assigned User (Relationship - Load from User table)
     @ManyToOne
     @JoinColumn(name = "user_id")
     private User assignedUser;
