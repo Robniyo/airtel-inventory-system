@@ -22,7 +22,7 @@ public class RequestController {
     @Autowired
     private AssetRequestRepository requestRepository;
 
-    // 1. User makes a request
+    // --- STAFF: Create Request ---
     @GetMapping("/assets/request/{id}")
     public String createRequest(@PathVariable Long id, HttpSession session) {
         User user = (User) session.getAttribute("user");
@@ -39,11 +39,10 @@ public class RequestController {
             
             requestRepository.save(req);
         }
-
         return "redirect:/dashboard?requested=true";
     }
 
-    // 2. Admin approves a request
+    // --- ADMIN: Approve Request ---
     @GetMapping("/admin/requests/approve/{id}")
     public String approveRequest(@PathVariable Long id) {
         AssetRequest req = requestRepository.findById(id).orElse(null);
@@ -55,17 +54,17 @@ public class RequestController {
             
             requestRepository.delete(req); 
         }
-        return "redirect:/dashboard?tab=requests&approved=true";
+        return "redirect:/dashboard?tab=requests";
     }
 
-    // 3. Admin rejects a request (THE MISSING PIECE)
+    // --- ADMIN: Reject Request ---
     @GetMapping("/admin/requests/reject/{id}")
     public String rejectRequest(@PathVariable Long id) {
         AssetRequest req = requestRepository.findById(id).orElse(null);
         if (req != null) {
-            // We simply delete the request so the asset stays AVAILABLE for others
+            // Simply delete the request. Asset remains AVAILABLE.
             requestRepository.delete(req);
         }
-        return "redirect:/dashboard?tab=requests&rejected=true";
+        return "redirect:/dashboard?tab=requests";
     }
 }
