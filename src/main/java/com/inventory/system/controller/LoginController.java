@@ -4,9 +4,7 @@ import com.inventory.system.entity.User;
 import com.inventory.system.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
-import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
-
 import javax.servlet.http.HttpSession;
 import java.util.Optional;
 
@@ -21,26 +19,9 @@ public class LoginController {
         return "login";
     }
 
-    @GetMapping("/signup")
-    public String signupPage(Model model) {
-        model.addAttribute("user", new User());
-        return "signup";
-    }
-
-    @PostMapping("/signup")
-    public String registerUser(@ModelAttribute User user) {
-        try {
-            // Role is removed to fix the 'cannot find symbol' error
-            userRepository.save(user);
-            return "redirect:/login?success";
-        } catch (Exception e) {
-            return "redirect:/signup?error";
-        }
-    }
-
     @PostMapping("/login")
     public String login(@RequestParam String username, @RequestParam String password, HttpSession session) {
-        // Hardcoded Admin Access for you
+        // Admin Access
         if ("24RP05300".equals(username) && "admin123".equals(password)) {
             User admin = new User();
             admin.setName("System Admin");
@@ -50,11 +31,10 @@ public class LoginController {
             return "redirect:/dashboard";
         }
 
-        // Database check for Staff
+        // Staff Access
         Optional<User> userOpt = userRepository.findByUsername(username);
         if (userOpt.isPresent() && userOpt.get().getPassword().equals(password)) {
-            User user = userOpt.get();
-            session.setAttribute("user", user);
+            session.setAttribute("user", userOpt.get());
             session.setAttribute("role", "STAFF");
             return "redirect:/dashboard";
         }
