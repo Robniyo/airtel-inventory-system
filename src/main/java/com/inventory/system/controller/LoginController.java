@@ -21,7 +21,7 @@ public class LoginController {
 
     @PostMapping("/login")
     public String login(@RequestParam String username, @RequestParam String password, HttpSession session) {
-        // 1. Check for Admin First
+        // 1. ADMIN CHECK (24RP05300)
         if ("24RP05300".equals(username) && "24RP05300".equals(password)) {
             User admin = new User();
             admin.setUsername("24RP05300");
@@ -31,7 +31,7 @@ public class LoginController {
             return "redirect:/dashboard";
         }
 
-        // 2. Check Database for Users
+        // 2. DATABASE USER CHECK
         Optional<User> userOpt = userRepository.findByUsername(username);
         if (userOpt.isPresent() && userOpt.get().getPassword().equals(password)) {
             session.setAttribute("user", userOpt.get());
@@ -40,5 +40,13 @@ public class LoginController {
         }
 
         return "redirect:/login?error";
+    }
+
+    @GetMapping("/logout")
+    public String logout(HttpSession session) {
+        if (session != null) {
+            session.invalidate();
+        }
+        return "redirect:/login?logout";
     }
 }
