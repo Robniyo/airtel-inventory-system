@@ -21,8 +21,8 @@ public class LoginController {
 
     @PostMapping("/login")
     public String login(@RequestParam String username, @RequestParam String password, HttpSession session) {
-        // 1. PRIORITY: Hardcoded Admin (Bypasses Database)
-        // This will work even if Render shows a "db_fail"
+        // 1. HARDCODED ADMIN (No Database required)
+        // Use your Reg Number for both
         if ("24RP05300".equals(username) && "24RP05300".equals(password)) {
             User admin = new User();
             admin.setName("Airtel Admin");
@@ -32,7 +32,7 @@ public class LoginController {
             return "redirect:/dashboard";
         }
 
-        // 2. Staff Database Login
+        // 2. STAFF CHECK (With Error Protection)
         try {
             if (userRepository != null) {
                 Optional<User> userOpt = userRepository.findByUsername(username);
@@ -43,15 +43,16 @@ public class LoginController {
                 }
             }
         } catch (Exception e) {
-            return "redirect:/login?error=db_fail";
+            // Log the error but don't show Whitelabel 500
+            System.out.println("Database Login Error: " + e.getMessage());
         }
 
-        return "redirect:/login?error=invalid";
+        return "redirect:/login?error";
     }
 
     @GetMapping("/logout")
     public String logout(HttpSession session) {
-        session.invalidate();
+        if (session != null) session.invalidate();
         return "redirect:/login";
     }
 }
