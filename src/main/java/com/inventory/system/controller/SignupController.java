@@ -22,9 +22,7 @@ public class SignupController {
     @PostMapping("/signup")
     public String registerUser(@ModelAttribute("user") User user) {
         try {
-            // If you get a 'cannot find symbol setRole' error, 
-            // it means your User entity is missing the role field.
-            // user.setRole("STAFF"); 
+            // Keep it simple so it doesn't crash the build
             userRepository.save(user);
             return "redirect:/login?success";
         } catch (Exception e) {
