@@ -2,38 +2,38 @@
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
-    <title>Airtel | Join the Network</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Signup - Airtel</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
     <style>
         :root { --airtel-red: #E40000; --dark: #1A1A1B; }
-        body { font-family: 'Inter', sans-serif; background: #f0f2f5; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; }
-        .card { background: white; padding: 40px; border-radius: 20px; box-shadow: 0 10px 25px rgba(0,0,0,0.05); width: 350px; }
-        .brand { color: var(--airtel-red); font-weight: 800; font-size: 32px; text-align: center; margin-bottom: 10px; }
-        h2 { text-align: center; margin-bottom: 25px; font-size: 18px; color: #65676B; }
-        input { width: 100%; padding: 12px; margin-bottom: 15px; border: 1px solid #ddd; border-radius: 8px; box-sizing: border-box; outline: none; }
+        body { font-family: 'Inter', sans-serif; background: #f0f2f5; display: flex; justify-content: center; align-items: center; min-height: 100vh; margin: 0; padding: 20px; box-sizing: border-box; }
+        .card { background: white; padding: 40px; border-radius: 20px; box-shadow: 0 10px 25px rgba(0,0,0,0.05); width: 100%; max-width: 400px; }
+        .brand { color: var(--airtel-red); font-weight: 800; font-size: 32px; text-align: center; margin-bottom: 20px; }
+        input { width: 100%; padding: 14px; margin-bottom: 15px; border: 1px solid #ddd; border-radius: 10px; box-sizing: border-box; outline: none; }
         input:focus { border-color: var(--airtel-red); }
-        .btn { background: var(--airtel-red); color: white; border: none; width: 100%; padding: 12px; border-radius: 8px; font-weight: 700; cursor: pointer; }
+        .btn { background: var(--airtel-red); color: white; border: none; width: 100%; padding: 14px; border-radius: 10px; font-weight: 700; cursor: pointer; font-size: 16px; }
         .footer-link { text-align: center; margin-top: 20px; font-size: 14px; color: #65676B; }
-        .footer-link a { color: var(--airtel-red); text-decoration: none; font-weight: 600; }
-        .error { color: var(--airtel-red); font-size: 12px; text-align: center; margin-bottom: 10px; }
+        .error { color: var(--airtel-red); font-size: 13px; text-align: center; margin-bottom: 15px; background:#fff1f1; padding:10px; border-radius:8px; }
     </style>
 </head>
 <body>
     <div class="card">
         <div class="brand">airtel</div>
-        <h2>Create Staff Account</h2>
+        <h2 style="text-align:center; font-size:18px; color:#555;">Registration</h2>
         
-        <div th:if="${param.error}" class="error">Email already registered in the system.</div>
+        <div th:if="${param.error}" class="error">Registration Number already exists!</div>
 
         <form th:action="@{/signup}" th:object="${user}" method="post">
-            <input type="text" th:field="*{name}" placeholder="Full Name" required>
-            <input type="email" th:field="*{email}" placeholder="Staff Email (@airtel.com)" required>
+            <input type="text" th:field="*{name}" placeholder="Full Student Name" required>
+            <input type="text" th:field="*{username}" placeholder="Registration Number (e.g. 24RP0000)" required>
+            <input type="email" th:field="*{email}" placeholder="Contact Email" required>
             <input type="password" th:field="*{password}" placeholder="Create Password" required>
-            <button type="submit" class="btn">Register Account</button>
+            <button type="submit" class="btn">Create Account</button>
         </form>
 
         <div class="footer-link">
-            Already have an account? <a th:href="@{/login}">Sign In</a>
+            Joined already? <a th:href="@{/login}" style="color:var(--airtel-red); text-decoration:none; font-weight:700;">Sign In</a>
         </div>
     </div>
 </body>
