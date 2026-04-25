@@ -11,26 +11,37 @@ import java.util.List;
 @Controller
 public class IndexController {
 
-    @Autowired
+    // (required = false) prevents the app from crashing during startup if DB is down
+    @Autowired(required = false)
     private AssetRepository assetRepository;
 
     @GetMapping("/")
     public String index(Model model) {
         try {
-            List<Asset> allAssets = assetRepository.findAll();
-            model.addAttribute("totalAssets", allAssets != null ? allAssets.size() : 0);
-            
-            // Safe count: prevents 500 error if status is null
-            long assigned = (allAssets == null) ? 0 : allAssets.stream()
-                .filter(a -> a.getStatus() != null && "ASSIGNED".equalsIgnoreCase(a.getStatus().toString()))
-                .count();
+            // Check if repository exists and can fetch data
+            if (assetRepository != null) {
+                List<Asset> allAssets = assetRepository.findAll();
                 
-            model.addAttribute("assignedCount", assigned);
+                int total = (allAssets != null) ? allAssets.size() : 0;
+                model.addAttribute("totalAssets", total);
+
+                long assigned = (allAssets == null) ? 0 : allAssets.stream()
+                    .filter(a -> a != null && a.getStatus() != null && "ASSIGNED".equalsIgnoreCase(a.getStatus().toString()))
+                    .count();
+                model.addAttribute("assignedCount", assigned);
+            } else {
+                // Repository is null (DB connection issue)
+                model.addAttribute("totalAssets", 0);
+                model.addAttribute("assignedCount", 0);
+            }
         } catch (Exception e) {
-            // If DB fails, we still show the page with 0 counts instead of a 500 error
+            // Log the error for you to see in Render logs, but keep the page alive
+            System.err.println("Index Landing Error: " + e.getMessage());
             model.addAttribute("totalAssets", 0);
             model.addAttribute("assignedCount", 0);
         }
+        
+        // This MUST match your file name: src/main/resources/templates/index.html
         return "index"; 
     }
 }
