@@ -9,6 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import javax.servlet.http.HttpSession;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -25,30 +26,43 @@ public class DashboardController {
     @GetMapping("/dashboard")
     public String showDashboard(HttpSession session, Model model) {
         User currentUser = (User) session.getAttribute("user");
+        if (currentUser == null) return "redirect:/login";
+        
+        return prepareDashboardView(model, new Asset(), false, session);
+    }
+
+    @GetMapping("/dashboard/edit/{id}")
+    public String editAsset(@PathVariable Long id, HttpSession session, Model model) {
+        if (session.getAttribute("user") == null || !"ADMIN".equals(session.getAttribute("role"))) {
+            return "redirect:/dashboard";
+        }
+        Asset assetToEdit = assetRepository.findById(id).orElse(new Asset());
+        return prepareDashboardView(model, assetToEdit, true, session);
+    }
+
+    private String prepareDashboardView(Model model, Asset asset, boolean openFleet, HttpSession session) {
+        List<Asset> allAssets = assetRepository.findAll();
+        List<AssetRequest> allRequests = requestRepository.findAll();
         String role = (String) session.getAttribute("role");
 
-        if (currentUser == null) {
-            return "redirect:/login";
-        }
-
-        List<Asset> allAssets = assetRepository.findAll();
         model.addAttribute("assets", allAssets);
+        model.addAttribute("asset", asset); 
         model.addAttribute("totalAssets", allAssets.size());
-        model.addAttribute("user", currentUser);
-        model.addAttribute("role", role);
-
-        // Logic for ADMIN (24RP05300)
-        if ("ADMIN".equals(role)) {
-            List<AssetRequest> allRequests = requestRepository.findAll();
-            model.addAttribute("pendingRequests", allRequests.stream()
-                .filter(r -> "PENDING".equals(r.getStatus().toString()))
-                .collect(Collectors.toList()));
-            model.addAttribute("isAdmin", true);
-            return "dashboard"; // Loads the admin version of dashboard
-        } 
+        model.addAttribute("role", role); // Explicitly passing role to model
         
-        // Logic for STAFF
-        model.addAttribute("isAdmin", false);
-        return "dashboard"; 
+        long assigned = allAssets.stream()
+                .filter(a -> a.getStatus() != null && "ASSIGNED".equalsIgnoreCase(a.getStatus().toString()))
+                .count();
+        model.addAttribute("assignedCount", assigned);
+
+        if ("ADMIN".equals(role)) {
+            List<AssetRequest> pending = allRequests.stream()
+                .filter(r -> r.getStatus() != null && "PENDING".equalsIgnoreCase(r.getStatus().toString()))
+                .collect(Collectors.toList());
+            model.addAttribute("pendingRequests", pending);
+        }
+        
+        model.addAttribute("openInventory", openFleet);
+        return "dashboard";
     }
 }
