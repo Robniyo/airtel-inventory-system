@@ -8,6 +8,6 @@ import java.util.Optional;
 @Repository
 public interface UserRepository extends JpaRepository<User, Long> {
     
-    // Using Optional is best practice for finding unique records
-    Optional<User> findByEmail(String email);
+    // Now searching by the registration number (username)
+    Optional<User> findByUsername(String username);
 }
