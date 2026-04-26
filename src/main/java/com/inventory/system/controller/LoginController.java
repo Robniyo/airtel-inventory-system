@@ -12,7 +12,7 @@ public class LoginController {
         return "login";
     }
 
-    // This will redirect the very first visit to the login page
+    // This replaces the IndexController. It sends everyone to /login
     @GetMapping("/")
     public String rootRedirect() {
         return "redirect:/login";
