@@ -12,12 +12,18 @@ public class LoginController {
         return "login";
     }
 
+    // This will redirect the very first visit to the login page
+    @GetMapping("/")
+    public String rootRedirect() {
+        return "redirect:/login";
+    }
+
     @PostMapping("/login")
     public String login(@RequestParam String username, 
                         @RequestParam String password, 
                         HttpSession session) {
         
-        // Your specific credentials
+        // Credentials: 24RP05300 / 24RP12881
         if ("24RP05300".equals(username) && "24RP12881".equals(password)) {
             session.setAttribute("role", "ADMIN");
             session.setAttribute("userName", "System Admin");
@@ -29,11 +35,6 @@ public class LoginController {
     @GetMapping("/logout")
     public String logout(HttpSession session) {
         if (session != null) session.invalidate();
-        return "redirect:/login";
-    }
-
-    @GetMapping("/")
-    public String index() {
         return "redirect:/login";
     }
 }
