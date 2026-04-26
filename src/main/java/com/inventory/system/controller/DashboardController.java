@@ -25,22 +25,21 @@ public class DashboardController {
         User user = (User) session.getAttribute("user");
         String role = (String) session.getAttribute("role");
 
+        // Kick out if not logged in
         if (user == null || role == null) return "redirect:/login";
 
-        // Shared Data
+        // Data for both pages
         model.addAttribute("user", user);
         model.addAttribute("assets", assetRepository.findAll());
         model.addAttribute("totalAssets", assetRepository.count());
-        model.addAttribute("assignedCount", assetRepository.findAll().stream()
-                .filter(a -> "ASSIGNED".equalsIgnoreCase(String.valueOf(a.getStatus()))).count());
 
-        // THE ABSOLUTE SPLIT
+        // THE TRAFFIC COP LOGIC
         if ("ADMIN".equals(role)) {
-            model.addAttribute("asset", new Asset()); // For the add form
+            model.addAttribute("asset", new Asset()); // Form object for Admin
             model.addAttribute("pendingRequests", requestRepository.findAll());
-            return "admin_dashboard"; // LOOKS FOR admin_dashboard.html
+            return "admin_dashboard"; // This looks for admin_dashboard.html
         } else {
-            return "staff_dashboard"; // LOOKS FOR staff_dashboard.html
+            return "staff_dashboard"; // This looks for staff_dashboard.html
         }
     }
 }
