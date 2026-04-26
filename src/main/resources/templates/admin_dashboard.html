@@ -1,77 +1,89 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
-    <meta charset="UTF-8">
-    <title>Airtel Inventory | Admin</title>
+    <title>Airtel | Inventory Management</title>
     <style>
-        :root { --airtel-red: #E40000; --dark: #333; }
-        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; margin: 0; background-color: #f9f9f9; }
-        .header { background-color: var(--airtel-red); color: white; padding: 1rem 5%; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
-        .container { padding: 2rem 5%; }
-        .card { background: white; padding: 20px; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); margin-bottom: 2rem; border-left: 5px solid var(--airtel-red); }
-        h2 { color: var(--airtel-red); margin-top: 0; }
-        form { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; align-items: end; }
-        input { padding: 10px; border: 1px solid #ddd; border-radius: 4px; }
-        button, .btn-del { background-color: var(--airtel-red); color: white; border: none; padding: 10px 20px; border-radius: 4px; cursor: pointer; text-decoration: none; font-weight: bold; }
-        .btn-del { background-color: #333; font-size: 0.8rem; }
-        table { width: 100%; border-collapse: collapse; margin-top: 1rem; }
-        th { background-color: #eee; padding: 12px; text-align: left; border-bottom: 2px solid var(--airtel-red); }
-        td { padding: 12px; border-bottom: 1px solid #eee; }
-        .status { font-weight: bold; color: green; }
+        :root { --airtel: #E40000; --bg: #f4f4f4; }
+        body { font-family: sans-serif; margin: 0; background: var(--bg); display: flex; flex-direction: column; min-height: 100vh; }
+        .nav { background: var(--airtel); color: white; padding: 15px 5%; display: flex; justify-content: space-between; }
+        .container { padding: 20px 5%; flex: 1; }
+        .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+        .card { background: white; padding: 20px; border-radius: 12px; box-shadow: 0 4px 10px rgba(0,0,0,0.05); margin-bottom: 20px; }
+        h2 { color: var(--airtel); border-bottom: 2px solid #eee; padding-bottom: 10px; }
+        table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+        th, td { text-align: left; padding: 12px; border-bottom: 1px solid #eee; }
+        input, select { padding: 10px; width: 100%; margin-bottom: 10px; border: 1px solid #ddd; border-radius: 6px; box-sizing: border-box; }
+        .btn { background: var(--airtel); color: white; border: none; padding: 10px 20px; border-radius: 6px; cursor: pointer; text-decoration: none; font-weight: bold; }
+        .footer { background: #1a1a1a; color: #888; text-align: center; padding: 20px; margin-top: auto; }
     </style>
 </head>
 <body>
-    <div class="header">
-        <h1>Airtel <span style="font-weight: lighter;">Inventory</span></h1>
-        <a th:href="@{/logout}" style="color: white; text-decoration: none;">Logout</a>
+    <div class="nav">
+        <strong>Airtel Inventory System</strong>
+        <a th:href="@{/logout}" style="color:white; text-decoration:none;">Sign Out</a>
     </div>
 
     <div class="container">
-        <div class="card">
-            <h2>Register New Hardware</h2>
-            <form th:action="@{/admin/assets/save}" th:object="${newAsset}" method="post">
-                <div>
-                    <label>Asset Name</label><br>
-                    <input type="text" th:field="*{name}" placeholder="e.g. HP Laptop" required>
-                </div>
-                <div>
-                    <label>Serial Number</label><br>
-                    <input type="text" th:field="*{serialNumber}" placeholder="S/N" required>
-                </div>
-                <div>
-                    <label>Brand</label><br>
-                    <input type="text" th:field="*{brand}" placeholder="Brand">
-                </div>
-                <button type="submit">Add to System</button>
-            </form>
+        <div class="grid">
+            <div class="card">
+                <h2>Register Asset</h2>
+                <form th:action="@{/admin/assets/save}" th:object="${newAsset}" method="post">
+                    <select th:field="*{category}">
+                        <option value="PHONE">Phone</option>
+                        <option value="TABLET">Tablet</option>
+                        <option value="COMPUTER">Computer</option>
+                        <option value="NETWORK_DEVICE">Network Device</option>
+                    </select>
+                    <input type="text" th:field="*{name}" placeholder="Asset Name" required>
+                    <input type="text" th:field="*{serialNumber}" placeholder="Serial S/N" required>
+                    <input type="text" th:field="*{brand}" placeholder="Brand (e.g. Cisco)">
+                    <button type="submit" class="btn">Save Asset</button>
+                </form>
+            </div>
+
+            <div class="card">
+                <h2>Register Staff</h2>
+                <form th:action="@{/admin/users/save}" th:object="${newUser}" method="post">
+                    <input type="text" th:field="*{name}" placeholder="Full Name" required>
+                    <input type="text" th:field="*{username}" placeholder="Staff ID (e.g. 24RP...)" required>
+                    <input type="email" th:field="*{email}" placeholder="Email Address">
+                    <button type="submit" class="btn" style="background:#333;">Add Staff</button>
+                </form>
+            </div>
         </div>
 
         <div class="card">
-            <h2>Inventory List</h2>
+            <h2>Inventory & Assignments</h2>
             <table>
                 <thead>
-                    <tr>
-                        <th>Name</th>
-                        <th>S/N</th>
-                        <th>Brand</th>
-                        <th>Status</th>
-                        <th>Action</th>
-                    </tr>
+                    <tr><th>Type</th><th>Name</th><th>S/N</th><th>Status</th><th>Assigned To</th><th>Action</th></tr>
                 </thead>
                 <tbody>
-                    <tr th:each="asset : ${assets}">
-                        <td th:text="${asset.name}"></td>
-                        <td th:text="${asset.serialNumber}"></td>
-                        <td th:text="${asset.brand}"></td>
-                        <td class="status" th:text="${asset.status}"></td>
+                    <tr th:each="a : ${assets}">
+                        <td th:text="${a.category}"></td>
+                        <td th:text="${a.name}"></td>
+                        <td th:text="${a.serialNumber}"></td>
+                        <td th:text="${a.status}" style="font-weight:bold; color: green;"></td>
                         <td>
-                            <a th:href="@{'/admin/assets/delete/' + ${asset.id}}" 
-                               class="btn-del" onclick="return confirm('Are you sure?')">Delete</a>
+                            <form th:action="@{/admin/assets/assign}" method="post" style="display:flex; gap:5px;">
+                                <input type="hidden" name="assetId" th:value="${a.id}">
+                                <select name="userId" style="margin:0; width: 120px;">
+                                    <option value="">Select Staff</option>
+                                    <option th:each="u : ${users}" th:value="${u.id}" th:text="${u.name}"></option>
+                                </select>
+                                <button type="submit" class="btn" style="padding:5px 10px; font-size:12px;">Assign</button>
+                            </form>
                         </td>
+                        <td><a th:href="@{'/admin/assets/delete/' + ${a.id}}" style="color:red;">Delete</a></td>
                     </tr>
                 </tbody>
             </table>
         </div>
+    </div>
+
+    <div class="footer">
+        <strong style="color:white;">airtel</strong><br>
+        &copy; 2026 Airtel IT Solutions | Assignment by niroBwimba
     </div>
 </body>
 </html>
