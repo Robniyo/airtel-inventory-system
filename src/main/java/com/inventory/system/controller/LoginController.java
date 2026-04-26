@@ -15,47 +15,41 @@ public class LoginController {
     private UserRepository userRepository;
 
     @GetMapping("/login")
-    public String loginPage(HttpSession session) {
+    public String loginPage() {
         return "login";
     }
 
     @PostMapping("/login")
     public String login(@RequestParam String username, @RequestParam String password, HttpSession session) {
-        // CLEAN THE SESSION FIRST
-        session.invalidate();
-        HttpSession newSession = null;
-
-        // 1. CHECK ADMIN
+        
+        // 1. MASTER ADMIN LOGIN
         if ("24RP05300".equals(username) && "24RP05300".equals(password)) {
-            newSession = createNewSession(session);
             User admin = new User();
             admin.setUsername("24RP05300");
             admin.setName("System Administrator");
-            newSession.setAttribute("user", admin);
-            newSession.setAttribute("role", "ADMIN");
+            
+            session.setAttribute("user", admin);
+            session.setAttribute("role", "ADMIN");
             return "redirect:/dashboard";
         }
 
-        // 2. CHECK STAFF
+        // 2. STAFF LOGIN
         Optional<User> userOpt = userRepository.findByUsername(username);
-        if (userOpt.isPresent() && userOpt.get().getPassword().equals(password)) {
-            newSession = createNewSession(session);
-            newSession.setAttribute("user", userOpt.get());
-            newSession.setAttribute("role", "STAFF");
-            return "redirect:/dashboard";
+        if (userOpt.isPresent()) {
+            User dbUser = userOpt.get();
+            if (dbUser.getPassword().equals(password)) {
+                session.setAttribute("user", dbUser);
+                session.setAttribute("role", "STAFF");
+                return "redirect:/dashboard";
+            }
         }
 
-        return "redirect:/login?error";
-    }
-
-    // Helper to ensure fresh session creation
-    private HttpSession createNewSession(HttpSession oldSession) {
-        return (oldSession != null) ? oldSession : null; 
+        return "redirect:/login?error=true";
     }
 
     @GetMapping("/logout")
     public String logout(HttpSession session) {
-        if (session != null) session.invalidate();
+        session.invalidate();
         return "redirect:/login";
     }
 }
