@@ -16,13 +16,13 @@ public class DashboardController {
 
     @GetMapping("/dashboard")
     public String showDashboard(HttpSession session, Model model) {
-        // Simple security check
+        // Only allow entry if the static login was successful
         if (session.getAttribute("role") == null) {
             return "redirect:/login";
         }
 
         model.addAttribute("assets", assetRepository.findAll());
-        model.addAttribute("newAsset", new Asset()); 
+        model.addAttribute("newAsset", new Asset()); // For the 'Add' form
         return "admin_dashboard";
     }
 }
