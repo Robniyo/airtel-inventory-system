@@ -21,30 +21,36 @@ public class LoginController {
 
     @PostMapping("/login")
     public String login(@RequestParam String username, @RequestParam String password, HttpSession session) {
-        // 1. HARDCODED MASTER ADMIN CHECK
+        
+        // 1. STRICT ADMIN CHECK (Hardcoded)
         if ("24RP05300".equals(username) && "24RP05300".equals(password)) {
             User admin = new User();
             admin.setUsername("24RP05300");
             admin.setName("System Administrator");
+            
             session.setAttribute("user", admin);
-            session.setAttribute("role", "ADMIN"); // CRITICAL: This string is used in HTML
+            session.setAttribute("role", "ADMIN"); // Set Role as ADMIN
             return "redirect:/dashboard";
         }
 
-        // 2. STAFF DATABASE CHECK
+        // 2. STAFF CHECK (Database)
         Optional<User> userOpt = userRepository.findByUsername(username);
-        if (userOpt.isPresent() && userOpt.get().getPassword().equals(password)) {
-            session.setAttribute("user", userOpt.get());
-            session.setAttribute("role", "STAFF"); // CRITICAL: This string is used in HTML
-            return "redirect:/dashboard";
+        if (userOpt.isPresent()) {
+            User dbUser = userOpt.get();
+            if (dbUser.getPassword().equals(password)) {
+                session.setAttribute("user", dbUser);
+                session.setAttribute("role", "STAFF"); // Set Role as STAFF
+                return "redirect:/dashboard";
+            }
         }
 
+        // If neither, fail
         return "redirect:/login?error=invalid";
     }
 
     @GetMapping("/logout")
     public String logout(HttpSession session) {
         if (session != null) session.invalidate();
-        return "redirect:/login?logout";
+        return "redirect:/login";
     }
 }
