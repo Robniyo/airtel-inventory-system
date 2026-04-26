@@ -14,10 +14,13 @@ public class AssetController {
     private AssetRepository assetRepository;
 
     @PostMapping("/admin/assets/save")
-    public String saveAsset(@ModelAttribute("asset") Asset asset, HttpSession session) {
+    public String saveAsset(@ModelAttribute Asset asset, HttpSession session) {
         String role = (String) session.getAttribute("role");
-        if ("ADMIN".equals(role)) {
-            if (asset.getId() == null) {
+        
+        // Use equalsIgnoreCase for safety
+        if ("ADMIN".equalsIgnoreCase(role)) {
+            // Force status to AVAILABLE if it's a new asset
+            if (asset.getId() == null || asset.getStatus() == null) {
                 asset.setStatus(Asset.Status.AVAILABLE);
             }
             assetRepository.save(asset);
@@ -28,8 +31,14 @@ public class AssetController {
     @GetMapping("/admin/assets/delete/{id}")
     public String deleteAsset(@PathVariable Long id, HttpSession session) {
         String role = (String) session.getAttribute("role");
-        if ("ADMIN".equals(role)) {
-            assetRepository.deleteById(id);
+        
+        if ("ADMIN".equalsIgnoreCase(role)) {
+            try {
+                assetRepository.deleteById(id);
+            } catch (Exception e) {
+                // If it fails (e.g., asset is linked to a request), just ignore and redirect
+                System.out.println("Delete failed: " + e.getMessage());
+            }
         }
         return "redirect:/dashboard";
     }
