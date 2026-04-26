@@ -3,40 +3,60 @@
 <head>
     <title>Airtel | Inventory Management</title>
     <style>
-        :root { --airtel: #E40000; --bg: #f4f4f4; }
+        :root { --airtel: #E40000; --bg: #f4f4f4; --dark: #1a1a1a; }
         body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; margin: 0; background: var(--bg); display: flex; flex-direction: column; min-height: 100vh; }
+        
+        /* Navigation */
         .nav { background: var(--airtel); color: white; padding: 15px 5%; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
         .nav strong { font-size: 1.2rem; letter-spacing: 1px; }
-        .container { padding: 30px 5%; flex: 1; }
-        .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 25px; margin-bottom: 25px; }
-        .card { background: white; padding: 25px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); margin-bottom: 20px;}
-        h2 { color: var(--airtel); border-bottom: 2px solid #f0f0f0; padding-bottom: 10px; margin-top: 0; font-size: 1.3rem; }
-        label { display: block; margin-bottom: 5px; font-weight: bold; font-size: 0.9rem; color: #555; }
+        .sign-out { color: white; text-decoration: none; border: 1px solid white; padding: 5px 15px; border-radius: 5px; font-size: 14px; transition: 0.3s; }
+        .sign-out:hover { background: white; color: var(--airtel); }
+
+        /* Layout */
+        .container { padding: 25px 5%; flex: 1; }
+        .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 20px; }
+        
+        /* Cards */
+        .card { background: white; padding: 25px; border-radius: 12px; box-shadow: 0 4px 10px rgba(0,0,0,0.05); margin-bottom: 20px; }
+        h2 { color: var(--airtel); border-bottom: 2px solid #eee; padding-bottom: 10px; margin-top: 0; font-size: 1.3rem; }
+        
+        /* Forms */
+        label { font-weight: bold; display: block; margin-bottom: 5px; color: #444; font-size: 0.85rem; }
         input, select { padding: 12px; width: 100%; margin-bottom: 15px; border: 1px solid #ddd; border-radius: 8px; box-sizing: border-box; font-size: 14px; }
-        .btn { background: var(--airtel); color: white; border: none; padding: 12px 20px; border-radius: 8px; cursor: pointer; text-decoration: none; font-weight: bold; transition: 0.3s; width: 100%; display: inline-block; text-align: center; }
+        input:focus { border-color: var(--airtel); outline: none; }
+        
+        /* Buttons */
+        .btn { background: var(--airtel); color: white; border: none; padding: 12px; border-radius: 8px; cursor: pointer; font-weight: bold; width: 100%; transition: 0.3s; font-size: 14px; }
         .btn:hover { background: #b30000; }
-        .btn-secondary { background: #333; }
-        .btn-assign { padding: 5px 10px; font-size: 11px; width: auto; margin: 0; }
-        table { width: 100%; border-collapse: collapse; margin-top: 15px; background: white; }
-        th, td { text-align: left; padding: 15px; border-bottom: 1px solid #eee; }
-        th { background: #f8f9fa; font-size: 12px; }
-        .status-tag { padding: 4px 8px; border-radius: 4px; font-size: 11px; font-weight: bold; background: #e8f5e9; color: #2e7d32; }
-        .footer { background: #1a1a1a; color: #888; text-align: center; padding: 25px; margin-top: auto; border-top: 4px solid var(--airtel); }
+        .btn-dark { background: var(--dark); }
+        .btn-dark:hover { background: #000; }
+        .btn-assign { padding: 6px 10px; width: auto; font-size: 12px; margin: 0; }
+
+        /* Table Style */
+        table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+        th { text-align: left; padding: 12px; background: #f9f9f9; color: #666; font-size: 12px; text-transform: uppercase; border-bottom: 2px solid #eee; }
+        td { padding: 12px; border-bottom: 1px solid #eee; font-size: 14px; vertical-align: middle; }
+        .status-tag { background: #e8f5e9; color: #2e7d32; padding: 4px 8px; border-radius: 4px; font-weight: bold; font-size: 11px; }
+        .held-by { display: block; font-size: 11px; color: #777; margin-top: 4px; }
+
+        /* Footer */
+        .footer { background: var(--dark); color: white; text-align: center; padding: 25px; margin-top: auto; font-size: 13px; }
     </style>
 </head>
 <body>
+
     <div class="nav">
-        <strong>AIRTEL INVENTORY</strong>
-        <a th:href="@{/logout}" style="color:white; text-decoration:none; border: 1px solid white; padding: 5px 15px; border-radius: 5px;">Sign Out</a>
+        <strong>AIRTEL INVENTORY SYSTEM</strong>
+        <a th:href="@{/logout}" class="sign-out">Sign Out</a>
     </div>
 
     <div class="container">
         
-        <div class="card" th:if="${assetToUpdate != null}" style="border: 2px solid var(--airtel);">
-            <h2>Update Asset Details</h2>
+        <div class="card" th:if="${assetToUpdate != null}" style="border-left: 5px solid var(--airtel); background: #fff9f9;">
+            <h2 style="color: #333;">Update Asset: <span th:text="${assetToUpdate.name}"></span></h2>
             <form th:action="@{/admin/assets/update}" th:object="${assetToUpdate}" method="post">
                 <input type="hidden" th:field="*{id}">
-                <div class="grid" style="margin-bottom:0;">
+                <div class="grid">
                     <div>
                         <label>Category</label>
                         <select th:field="*{category}">
@@ -51,8 +71,18 @@
                         <input type="text" th:field="*{name}" required>
                     </div>
                 </div>
-                <button type="submit" class="btn btn-secondary">Confirm Update</button>
-                <a th:href="@{/dashboard}" style="display:block; text-align:center; margin-top:10px; color:#666; font-size:14px;">Cancel Edit</a>
+                <div class="grid">
+                    <div>
+                        <label>Serial Number (S/N)</label>
+                        <input type="text" th:field="*{serialNumber}" required>
+                    </div>
+                    <div>
+                        <label>Brand</label>
+                        <input type="text" th:field="*{brand}">
+                    </div>
+                </div>
+                <button type="submit" class="btn btn-dark">Apply Changes</button>
+                <a th:href="@{/dashboard}" style="display:block; text-align:center; margin-top:10px; color:#666; font-size:13px; text-decoration:none;">Cancel Edit</a>
             </form>
         </div>
 
@@ -67,62 +97,91 @@
                         <option value="COMPUTER">Computer</option>
                         <option value="NETWORK_DEVICE">Network Device</option>
                     </select>
-                    <input type="text" th:field="*{name}" placeholder="Asset Name" required>
-                    <input type="text" th:field="*{serialNumber}" placeholder="Serial Number" required>
-                    <input type="text" th:field="*{brand}" placeholder="Brand">
-                    <button type="submit" class="btn">Add to Inventory</button>
+                    
+                    <label>Asset Name</label>
+                    <input type="text" th:field="*{name}" placeholder="e.g. iPhone 15" required>
+                    
+                    <label>Serial Number</label>
+                    <input type="text" th:field="*{serialNumber}" placeholder="e.g. SN-990011" required>
+                    
+                    <label>Brand</label>
+                    <input type="text" th:field="*{brand}" placeholder="e.g. Apple">
+                    
+                    <button type="submit" class="btn">Register Asset</button>
                 </form>
             </div>
 
             <div class="card">
-                <h2>Register Staff Member</h2>
+                <h2>Register Staff</h2>
                 <form th:action="@{/admin/users/save}" th:object="${newUser}" method="post">
+                    <label>Full Name</label>
                     <input type="text" th:field="*{name}" placeholder="Full Name" required>
-                    <input type="text" th:field="*{username}" placeholder="Staff ID (e.g. 24RP...)" required>
-                    <input type="email" th:field="*{email}" placeholder="Email Address">
-                    <button type="submit" class="btn btn-secondary">Register Staff</button>
+                    
+                    <label>Staff ID (Username)</label>
+                    <input type="text" th:field="*{username}" placeholder="e.g. 24RP000" required>
+                    
+                    <label>Email</label>
+                    <input type="email" th:field="*{email}" placeholder="email@airtel.com">
+                    
+                    <button type="submit" class="btn btn-dark">Add Staff Member</button>
                 </form>
             </div>
         </div>
 
         <div class="card">
-            <h2>Inventory & Assignments</h2>
-            <table>
-                <thead>
-                    <tr>
-                        <th>Category</th><th>Name</th><th>S/N</th><th>Status</th><th>Assign To</th><th>Actions</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr th:each="a : ${assets}">
-                        <td th:text="${a.category}"></td>
-                        <td th:text="${a.name}"></td>
-                        <td th:text="${a.serialNumber}"></td>
-                        <td><span class="status-tag" th:text="${a.status}"></span></td>
-                        <td>
-                            <form th:action="@{/admin/assets/assign}" method="post" style="display:flex; gap:5px;">
-                                <input type="hidden" name="assetId" th:value="${a.id}">
-                                <select name="userId" style="margin:0; width: 120px; padding: 5px; font-size:12px;">
-                                    <option value="">Select Staff</option>
-                                    <option th:each="u : ${users}" th:value="${u.id}" th:text="${u.name}"></option>
-                                </select>
-                                <button type="submit" class="btn btn-assign">Assign</button>
-                            </form>
-                            <small th:if="${a.assignedUser != null}" th:text="'Held by: ' + ${a.assignedUser.name}"></small>
-                        </td>
-                        <td>
-                            <a th:href="@{'/admin/assets/edit/' + ${a.id}}" style="color:blue; margin-right:10px;">Edit</a>
-                            <a th:href="@{'/admin/assets/delete/' + ${a.id}}" onclick="return confirm('Delete?')" style="color:var(--airtel);">Delete</a>
-                        </td>
-                    </tr>
-                </tbody>
-            </table>
+            <h2>Inventory Control</h2>
+            <div style="overflow-x: auto;">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Type</th>
+                            <th>Asset Details</th>
+                            <th>Serial No</th>
+                            <th>Status</th>
+                            <th>Assignment</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr th:each="a : ${assets}">
+                            <td th:text="${a.category}"></td>
+                            <td>
+                                <strong th:text="${a.name}"></strong><br>
+                                <small style="color:#999" th:text="${a.brand}"></small>
+                            </td>
+                            <td th:text="${a.serialNumber}"></td>
+                            <td><span class="status-tag" th:text="${a.status}"></span></td>
+                            <td>
+                                <form th:action="@{/admin/assets/assign}" method="post" style="display:flex; gap:5px; align-items:center;">
+                                    <input type="hidden" name="assetId" th:value="${a.id}">
+                                    <select name="userId" style="margin:0; width: 110px; padding: 5px; font-size: 12px;">
+                                        <option value="">Staff...</option>
+                                        <option th:each="u : ${users}" th:value="${u.id}" th:text="${u.name}"></option>
+                                    </select>
+                                    <button type="submit" class="btn btn-assign">Assign</button>
+                                </form>
+                                <small class="held-by" th:if="${a.assignedUser != null}" th:text="'Current: ' + ${a.assignedUser.name}"></small>
+                            </td>
+                            <td>
+                                <div style="display: flex; gap: 15px;">
+                                    <a th:href="@{'/admin/assets/edit/' + ${a.id}}" style="color:blue; text-decoration:none; font-weight:bold;">Edit</a>
+                                    <a th:href="@{'/admin/assets/delete/' + ${a.id}}" onclick="return confirm('Permanently delete this asset?')" style="color:var(--airtel); text-decoration:none; font-weight:bold;">Delete</a>
+                                </div>
+                            </td>
+                        </tr>
+                        <tr th:if="${#lists.isEmpty(assets)}">
+                            <td colspan="6" style="text-align:center; padding: 30px; color: #999;">No assets found in database.</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
         </div>
     </div>
 
     <div class="footer">
-        <strong style="color:white;">airtel</strong><br>
-        &copy; 2026 Airtel IT Solutions | Managed by niroBwimba
+        <strong>airtel</strong><br>
+        <p style="margin: 5px 0 0 0; opacity: 0.7;">&copy; 2026 Airtel IT Asset Management | Developed by niroBwimba</p>
     </div>
+
 </body>
 </html>
