@@ -10,7 +10,6 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import javax.servlet.http.HttpSession;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -19,43 +18,41 @@ public class DashboardController {
 
     @Autowired
     private AssetRepository assetRepository;
-    
     @Autowired
     private AssetRequestRepository requestRepository;
 
     @GetMapping("/dashboard")
     public String showDashboard(HttpSession session, Model model) {
-        // Security Check: Is anyone logged in?
         User currentUser = (User) session.getAttribute("user");
-        String role = (String) session.getAttribute("role");
+        // Get the role from session
+        Object roleObj = session.getAttribute("role");
 
-        if (currentUser == null || role == null) {
+        // IF NO USER IN SESSION, KICK TO LOGIN
+        if (currentUser == null || roleObj == null) {
             return "redirect:/login";
         }
 
-        // 1. Load Common Data
+        String role = roleObj.toString();
+        
+        // COMMON DATA
         List<Asset> allAssets = assetRepository.findAll();
         model.addAttribute("assets", allAssets);
         model.addAttribute("user", currentUser);
-        model.addAttribute("role", role); // Send the role string to HTML ('ADMIN' or 'STAFF')
+        model.addAttribute("role", role); // CRITICAL: This is what HTML looks for
         model.addAttribute("totalAssets", allAssets.size());
-        model.addAttribute("asset", new Asset()); 
+        model.addAttribute("asset", new Asset());
 
         long assigned = allAssets.stream()
                 .filter(a -> a.getStatus() != null && "ASSIGNED".equalsIgnoreCase(a.getStatus().toString()))
                 .count();
         model.addAttribute("assignedCount", assigned);
 
-        // 2. Role-Based Logic
+        // ADMIN SPECIFIC DATA
         if ("ADMIN".equals(role)) {
-            // Admin sees everything + approval hub
             List<AssetRequest> pending = requestRepository.findAll().stream()
                 .filter(r -> r.getStatus() != null && "PENDING".equalsIgnoreCase(r.getStatus().toString()))
                 .collect(Collectors.toList());
             model.addAttribute("pendingRequests", pending);
-        } else {
-            // Staff sees NO pending requests (Security)
-            model.addAttribute("pendingRequests", new ArrayList<AssetRequest>());
         }
 
         return "dashboard";
