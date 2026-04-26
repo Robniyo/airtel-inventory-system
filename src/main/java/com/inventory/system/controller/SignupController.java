@@ -10,7 +10,7 @@ import org.springframework.web.bind.annotation.*;
 @Controller
 public class SignupController {
 
-    @Autowired(required = false)
+    @Autowired
     private UserRepository userRepository;
 
     @GetMapping("/signup")
@@ -22,14 +22,14 @@ public class SignupController {
     @PostMapping("/signup")
     public String registerUser(@ModelAttribute("user") User user) {
         try {
-            if (userRepository != null) {
-                userRepository.save(user);
-                return "redirect:/login?success";
+            // Check for duplicates
+            if (userRepository.findByUsername(user.getUsername()).isPresent()) {
+                return "redirect:/signup?error=exists";
             }
+            userRepository.save(user);
+            return "redirect:/login?success";
         } catch (Exception e) {
-            // Redirects to conflict if user already exists
-            return "redirect:/signup?error=conflict";
+            return "redirect:/signup?error";
         }
-        return "redirect:/signup?error";
     }
 }
