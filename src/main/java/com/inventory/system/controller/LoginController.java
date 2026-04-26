@@ -21,43 +21,31 @@ public class LoginController {
 
     @PostMapping("/login")
     public String login(@RequestParam String username, @RequestParam String password, HttpSession session) {
-        // Step 1: Force a clean session state
-        session.invalidate(); 
+        session.invalidate(); // Clear old sessions
         
-        // Step 2: MASTER ADMIN OVERRIDE (Hardcoded for your specific ID)
+        // Use the request to get a fresh session
         if ("24RP05300".equals(username) && "24RP05300".equals(password)) {
             User admin = new User();
             admin.setUsername("24RP05300");
             admin.setName("System Administrator");
-            
-            // Create fresh session
             session.setAttribute("user", admin);
-            session.setAttribute("role", "ADMIN"); 
-            System.out.println(">>> LOGIN SUCCESS: Admin role assigned to " + username);
+            session.setAttribute("role", "ADMIN");
             return "redirect:/dashboard";
         }
 
-        // Step 3: DATABASE STAFF CHECK
         Optional<User> userOpt = userRepository.findByUsername(username);
-        if (userOpt.isPresent()) {
-            User dbUser = userOpt.get();
-            if (dbUser.getPassword().equals(password)) {
-                session.setAttribute("user", dbUser);
-                session.setAttribute("role", "STAFF");
-                System.out.println(">>> LOGIN SUCCESS: Staff role assigned to " + username);
-                return "redirect:/dashboard";
-            }
+        if (userOpt.isPresent() && userOpt.get().getPassword().equals(password)) {
+            session.setAttribute("user", userOpt.get());
+            session.setAttribute("role", "STAFF");
+            return "redirect:/dashboard";
         }
 
-        System.out.println(">>> LOGIN FAILED for user: " + username);
         return "redirect:/login?error=true";
     }
 
     @GetMapping("/logout")
     public String logout(HttpSession session) {
-        if (session != null) {
-            session.invalidate();
-        }
+        if (session != null) session.invalidate();
         return "redirect:/login";
     }
 }
