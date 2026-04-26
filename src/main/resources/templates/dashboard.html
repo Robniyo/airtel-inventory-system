@@ -42,7 +42,9 @@
     <div class="nav-links">
         <div onclick="switchSection('home')" id="nav-home" class="nav-item active">Overview</div>
         <div onclick="switchSection('fleet')" id="nav-fleet" class="nav-item">Fleet Manager</div>
+        
         <div th:if="${role == 'ADMIN'}" onclick="switchSection('requests')" id="nav-requests" class="nav-item">Approval Hub</div>
+        
         <a th:href="@{/logout}" class="nav-item" style="color:var(--airtel-red)">Sign Out</a>
     </div>
 </nav>
@@ -57,7 +59,7 @@
 
         <div th:if="${role == 'STAFF'}" style="background: white; padding: 30px; border-radius: 20px; border-left: 6px solid var(--blue); box-shadow: var(--shadow);">
             <h2 style="margin:0; color: var(--blue);">Staff Portal</h2>
-            <p style="margin:10px 0 0; color: var(--grey);">Welcome back, <span th:text="${session.user.name}" style="font-weight: 800; color: var(--dark);">User</span></p>
+            <p style="margin:10px 0 0; color: var(--grey);">Welcome back, <span th:text="${user.name}" style="font-weight: 800; color: var(--dark);">User</span></p>
         </div>
         
         <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px; margin-top: 30px;">
@@ -73,6 +75,7 @@
     </div>
 
     <div id="section-fleet" class="section">
+        
         <div class="admin-box" th:if="${role == 'ADMIN'}">
             <h3 th:text="${asset.id != null ? 'Edit Resource' : 'Register New Resource'}" style="margin-top:0;">Manage</h3>
             <form th:action="@{/admin/assets/save}" th:object="${asset}" method="post">
@@ -169,18 +172,15 @@
 
 <script th:inline="javascript">
     function switchSection(id) {
-        // Switch Section Visibility
         document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
         var target = document.getElementById('section-' + id);
         if(target) target.classList.add('active');
         
-        // Switch Nav Item Style
         document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
         var navTarget = document.getElementById('nav-' + id);
         if(navTarget) navTarget.classList.add('active');
     }
 
-    // Auto-switch to fleet manager if user was editing an asset
     window.onload = function() {
         var shouldOpenFleet = [[${openInventory}]];
         if (shouldOpenFleet) {
