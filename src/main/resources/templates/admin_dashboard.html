@@ -14,6 +14,7 @@
         th, td { text-align: left; padding: 12px; border-bottom: 1px solid #eee; }
         .btn { background: var(--airtel-red); color: white; padding: 10px 20px; border-radius: 6px; text-decoration: none; font-weight: bold; border: none; cursor: pointer; }
         input { padding: 10px; border: 1px solid #ddd; border-radius: 6px; width: 250px; margin-right: 10px; }
+        .status-badge { padding: 5px 10px; border-radius: 20px; font-size: 12px; font-weight: bold; background: #eee; }
     </style>
 </head>
 <body>
@@ -24,13 +25,13 @@
     <div class="container">
         <div class="card">
             <h1>System Overview</h1>
-            <p>Welcome, <strong th:text="${user.name}">Admin</strong>. You have full access to manage assets.</p>
+            <p>Welcome, <strong th:text="${user != null ? user.name : 'Administrator'}">Admin</strong>.</p>
         </div>
 
         <div class="card">
             <h3>Register New Hardware</h3>
             <form th:action="@{/admin/assets/save}" th:object="${asset}" method="post">
-                <input type="text" th:field="*{name}" placeholder="Asset Name (e.g. Laptop)" required>
+                <input type="text" th:field="*{name}" placeholder="Asset Name" required>
                 <input type="text" th:field="*{serialNumber}" placeholder="Serial S/N" required>
                 <button type="submit" class="btn">Register Asset</button>
             </form>
@@ -38,17 +39,19 @@
 
         <div class="card">
             <h3>Approval Requests</h3>
-            <table th:if="${not #lists.isEmpty(pendingRequests)}">
+            <table th:if="${pendingRequests != null and !pendingRequests.empty}">
                 <thead><tr><th>Employee</th><th>Resource</th><th>Action</th></tr></thead>
                 <tbody>
                     <tr th:each="r : ${pendingRequests}">
-                        <td th:text="${r.user.name}">User</td>
-                        <td th:text="${r.asset.name}">Asset</td>
-                        <td><a th:href="@{/admin/requests/approve/{id}(id=${r.id})}" class="btn" style="background:#28a745;">Approve</a></td>
+                        <td th:text="${r.user != null ? r.user.name : 'Unknown Staff'}">User</td>
+                        <td th:text="${r.asset != null ? r.asset.name : 'Unknown Asset'}">Asset</td>
+                        <td>
+                            <a th:href="@{/admin/requests/approve/{id}(id=${r.id})}" class="btn" style="background:#28a745;">Approve</a>
+                        </td>
                     </tr>
                 </tbody>
             </table>
-            <p th:if="${#lists.isEmpty(pendingRequests)}">No pending requests at the moment.</p>
+            <p th:if="${pendingRequests == null or pendingRequests.empty}">No pending requests.</p>
         </div>
     </div>
 </body>
