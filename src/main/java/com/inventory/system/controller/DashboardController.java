@@ -10,7 +10,6 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import javax.servlet.http.HttpSession;
 import java.util.ArrayList;
-import java.util.List;
 
 @Controller
 public class DashboardController {
@@ -26,28 +25,26 @@ public class DashboardController {
         User user = (User) session.getAttribute("user");
         String role = (String) session.getAttribute("role");
 
-        // 1. Safety check: Redirect if no user in session
-        if (user == null || role == null) {
-            return "redirect:/login";
-        }
+        if (user == null || role == null) return "redirect:/login";
 
-        // 2. Fetch data safely
-        List<Asset> assets = assetRepository.findAll();
-        if (assets == null) assets = new ArrayList<>();
-
-        // 3. Add shared attributes
         model.addAttribute("user", user);
-        model.addAttribute("assets", assets);
-        model.addAttribute("totalAssets", assets.size());
-
-        // 4. Role-based logic
-        if ("ADMIN".equalsIgnoreCase(role)) {
-            model.addAttribute("asset", new Asset()); 
-            var requests = requestRepository.findAll();
-            model.addAttribute("pendingRequests", requests != null ? requests : new ArrayList<>());
-            return "admin_dashboard"; // Refers to admin_dashboard.html
-        } else {
-            return "staff_dashboard"; // Refers to staff_dashboard.html
+        
+        // Use try-catch to prevent 500 errors if DB is slow
+        try {
+            model.addAttribute("assets", assetRepository.findAll());
+        } catch (Exception e) {
+            model.addAttribute("assets", new ArrayList<>());
         }
+
+        if ("ADMIN".equalsIgnoreCase(role)) {
+            model.addAttribute("asset", new Asset());
+            try {
+                model.addAttribute("pendingRequests", requestRepository.findAll());
+            } catch (Exception e) {
+                model.addAttribute("pendingRequests", new ArrayList<>());
+            }
+            return "admin_dashboard";
+        } 
+        return "staff_dashboard";
     }
 }
