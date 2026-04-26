@@ -26,30 +26,28 @@ public class DashboardController {
         User user = (User) session.getAttribute("user");
         String role = (String) session.getAttribute("role");
 
-        // 1. Session check
+        // 1. Safety check: Redirect if no user in session
         if (user == null || role == null) {
-            System.out.println(">>> DASHBOARD REJECTED: No session found.");
             return "redirect:/login";
         }
 
-        // 2. Load Shared Data
-        List<Asset> allAssets = assetRepository.findAll();
+        // 2. Fetch data safely
+        List<Asset> assets = assetRepository.findAll();
+        if (assets == null) assets = new ArrayList<>();
+
+        // 3. Add shared attributes
         model.addAttribute("user", user);
-        model.addAttribute("assets", allAssets != null ? allAssets : new ArrayList<>());
-        model.addAttribute("totalAssets", allAssets != null ? allAssets.size() : 0);
+        model.addAttribute("assets", assets);
+        model.addAttribute("totalAssets", assets.size());
 
-        // 3. LOGGING FOR DEBUGGING (Check your Render logs for this!)
-        System.out.println(">>> ACCESSING DASHBOARD: User=" + user.getUsername() + " | Role=" + role);
-
-        // 4. Forced Redirection based on Role
+        // 4. Role-based logic
         if ("ADMIN".equalsIgnoreCase(role)) {
-            model.addAttribute("asset", new Asset()); // Blank asset for the 'Add' form
-            model.addAttribute("pendingRequests", requestRepository.findAll());
-            System.out.println(">>> LOADING: admin_dashboard.html");
-            return "admin_dashboard"; 
+            model.addAttribute("asset", new Asset()); 
+            var requests = requestRepository.findAll();
+            model.addAttribute("pendingRequests", requests != null ? requests : new ArrayList<>());
+            return "admin_dashboard"; // Refers to admin_dashboard.html
         } else {
-            System.out.println(">>> LOADING: staff_dashboard.html");
-            return "staff_dashboard";
+            return "staff_dashboard"; // Refers to staff_dashboard.html
         }
     }
 }
