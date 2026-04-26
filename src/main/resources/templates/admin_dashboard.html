@@ -1,46 +1,72 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
-    <title>Airtel | Inventory Management</title>
+    <meta charset="UTF-8">
+    <title>Airtel Inventory | Admin</title>
     <style>
-        body { font-family: sans-serif; background: #f4f4f4; margin: 0; }
-        .nav { background: #E40000; color: white; padding: 15px; display: flex; justify-content: space-between; }
-        .container { padding: 20px; }
-        .card { background: white; padding: 20px; border-radius: 8px; margin-bottom: 20px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
-        table { width: 100%; border-collapse: collapse; }
-        th, td { border: 1px solid #ddd; padding: 10px; text-align: left; }
-        .btn { padding: 8px 15px; border-radius: 4px; text-decoration: none; color: white; cursor: pointer; border: none; }
-        .btn-add { background: #E40000; }
-        .btn-del { background: #333; }
+        :root { --airtel-red: #E40000; --dark: #333; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; margin: 0; background-color: #f9f9f9; }
+        .header { background-color: var(--airtel-red); color: white; padding: 1rem 5%; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+        .container { padding: 2rem 5%; }
+        .card { background: white; padding: 20px; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); margin-bottom: 2rem; border-left: 5px solid var(--airtel-red); }
+        h2 { color: var(--airtel-red); margin-top: 0; }
+        form { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; align-items: end; }
+        input { padding: 10px; border: 1px solid #ddd; border-radius: 4px; }
+        button, .btn-del { background-color: var(--airtel-red); color: white; border: none; padding: 10px 20px; border-radius: 4px; cursor: pointer; text-decoration: none; font-weight: bold; }
+        .btn-del { background-color: #333; font-size: 0.8rem; }
+        table { width: 100%; border-collapse: collapse; margin-top: 1rem; }
+        th { background-color: #eee; padding: 12px; text-align: left; border-bottom: 2px solid var(--airtel-red); }
+        td { padding: 12px; border-bottom: 1px solid #eee; }
+        .status { font-weight: bold; color: green; }
     </style>
 </head>
 <body>
-    <div class="nav">
-        <span>Airtel Inventory System (Admin)</span>
-        <a th:href="@{/logout}" style="color:white;">Logout</a>
+    <div class="header">
+        <h1>Airtel <span style="font-weight: lighter;">Inventory</span></h1>
+        <a th:href="@{/logout}" style="color: white; text-decoration: none;">Logout</a>
     </div>
+
     <div class="container">
         <div class="card">
-            <h2>Add New Asset</h2>
-            <form th:action="@{/admin/assets/save}" method="post">
-                <input type="text" name="name" placeholder="Asset Name" required>
-                <input type="text" name="serialNumber" placeholder="Serial Number" required>
-                <button type="submit" class="btn btn-add">Save Asset</button>
+            <h2>Register New Hardware</h2>
+            <form th:action="@{/admin/assets/save}" th:object="${newAsset}" method="post">
+                <div>
+                    <label>Asset Name</label><br>
+                    <input type="text" th:field="*{name}" placeholder="e.g. HP Laptop" required>
+                </div>
+                <div>
+                    <label>Serial Number</label><br>
+                    <input type="text" th:field="*{serialNumber}" placeholder="S/N" required>
+                </div>
+                <div>
+                    <label>Brand</label><br>
+                    <input type="text" th:field="*{brand}" placeholder="Brand">
+                </div>
+                <button type="submit">Add to System</button>
             </form>
         </div>
+
         <div class="card">
-            <h2>Current Inventory</h2>
+            <h2>Inventory List</h2>
             <table>
                 <thead>
-                    <tr><th>Name</th><th>S/N</th><th>Status</th><th>Actions</th></tr>
+                    <tr>
+                        <th>Name</th>
+                        <th>S/N</th>
+                        <th>Brand</th>
+                        <th>Status</th>
+                        <th>Action</th>
+                    </tr>
                 </thead>
                 <tbody>
-                    <tr th:each="a : ${assets}">
-                        <td th:text="${a.name}"></td>
-                        <td th:text="${a.serialNumber}"></td>
-                        <td th:text="${a.status}"></td>
+                    <tr th:each="asset : ${assets}">
+                        <td th:text="${asset.name}"></td>
+                        <td th:text="${asset.serialNumber}"></td>
+                        <td th:text="${asset.brand}"></td>
+                        <td class="status" th:text="${asset.status}"></td>
                         <td>
-                            <a th:href="@{'/admin/assets/delete/' + ${a.id}}" class="btn btn-del">Delete</a>
+                            <a th:href="@{'/admin/assets/delete/' + ${asset.id}}" 
+                               class="btn-del" onclick="return confirm('Are you sure?')">Delete</a>
                         </td>
                     </tr>
                 </tbody>
