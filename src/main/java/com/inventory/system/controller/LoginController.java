@@ -1,61 +1,46 @@
 package com.inventory.system.controller;
 
+import com.inventory.system.entity.Asset;
 import com.inventory.system.entity.User;
-import com.inventory.system.repository.UserRepository;
+import com.inventory.system.repository.AssetRepository;
+import com.inventory.system.repository.AssetRequestRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.GetMapping;
 import javax.servlet.http.HttpSession;
-import java.util.Optional;
+import java.util.ArrayList;
 
 @Controller
-public class LoginController {
+public class DashboardController {
 
     @Autowired
-    private UserRepository userRepository;
+    private AssetRepository assetRepository;
+    
+    @Autowired
+    private AssetRequestRepository requestRepository;
 
-    @GetMapping("/login")
-    public String loginPage() {
-        return "login";
-    }
+    @GetMapping("/dashboard")
+    public String showDashboard(HttpSession session, Model model) {
+        User user = (User) session.getAttribute("user");
+        String role = (String) session.getAttribute("role");
 
-    @PostMapping("/login")
-    public String login(@RequestParam String username, @RequestParam String password, HttpSession session) {
-        
-        // 1. ABSOLUTE ADMIN CHECK (MASTER OVERRIDE)
-        // This ensures YOUR ID always gets the ADMIN role regardless of database
-        if ("24RP05300".equals(username)) {
-            if ("24RP05300".equals(password)) {
-                User admin = new User();
-                admin.setUsername("24RP05300");
-                admin.setName("System Administrator");
-                
-                session.setAttribute("user", admin);
-                session.setAttribute("role", "ADMIN"); 
-                return "redirect:/dashboard";
-            }
+        if (user == null || role == null) return "redirect:/login";
+
+        // Shared Data
+        model.addAttribute("user", user);
+        model.addAttribute("assets", assetRepository.findAll());
+        model.addAttribute("totalAssets", assetRepository.count());
+        model.addAttribute("assignedCount", assetRepository.findAll().stream()
+                .filter(a -> "ASSIGNED".equalsIgnoreCase(String.valueOf(a.getStatus()))).count());
+
+        // THE ABSOLUTE SPLIT
+        if ("ADMIN".equals(role)) {
+            model.addAttribute("asset", new Asset()); // For the add form
+            model.addAttribute("pendingRequests", requestRepository.findAll());
+            return "admin_dashboard"; // LOOKS FOR admin_dashboard.html
+        } else {
+            return "staff_dashboard"; // LOOKS FOR staff_dashboard.html
         }
-
-        // 2. STAFF CHECK (ONLY if not the master admin)
-        Optional<User> userOpt = userRepository.findByUsername(username);
-        if (userOpt.isPresent()) {
-            User dbUser = userOpt.get();
-            if (dbUser.getPassword().equals(password)) {
-                session.setAttribute("user", dbUser);
-                session.setAttribute("role", "STAFF"); 
-                return "redirect:/dashboard";
-            }
-        }
-
-        // 3. FAIL
-        return "redirect:/login?error=true";
-    }
-
-    @GetMapping("/logout")
-    public String logout(HttpSession session) {
-        if (session != null) {
-            session.invalidate();
-        }
-        return "redirect:/login";
     }
 }
