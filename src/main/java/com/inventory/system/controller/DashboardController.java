@@ -9,7 +9,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
 import javax.servlet.http.HttpSession;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -26,43 +25,31 @@ public class DashboardController {
     @GetMapping("/dashboard")
     public String showDashboard(HttpSession session, Model model) {
         User currentUser = (User) session.getAttribute("user");
+        String sessionRole = (String) session.getAttribute("role");
+
         if (currentUser == null) return "redirect:/login";
-        
-        return prepareDashboardView(model, new Asset(), false, session);
-    }
 
-    @GetMapping("/dashboard/edit/{id}")
-    public String editAsset(@PathVariable Long id, HttpSession session, Model model) {
-        if (session.getAttribute("user") == null || !"ADMIN".equals(session.getAttribute("role"))) {
-            return "redirect:/dashboard";
-        }
-        Asset assetToEdit = assetRepository.findById(id).orElse(new Asset());
-        return prepareDashboardView(model, assetToEdit, true, session);
-    }
-
-    private String prepareDashboardView(Model model, Asset asset, boolean openFleet, HttpSession session) {
+        // Pass data to UI
         List<Asset> allAssets = assetRepository.findAll();
-        List<AssetRequest> allRequests = requestRepository.findAll();
-        String role = (String) session.getAttribute("role");
-
         model.addAttribute("assets", allAssets);
-        model.addAttribute("asset", asset); 
+        model.addAttribute("user", currentUser);
+        model.addAttribute("role", sessionRole); // Sending role directly to HTML
         model.addAttribute("totalAssets", allAssets.size());
-        model.addAttribute("role", role); // Explicitly passing role to model
-        
+        model.addAttribute("asset", new Asset()); // For the 'Add Asset' form
+
         long assigned = allAssets.stream()
                 .filter(a -> a.getStatus() != null && "ASSIGNED".equalsIgnoreCase(a.getStatus().toString()))
                 .count();
         model.addAttribute("assignedCount", assigned);
 
-        if ("ADMIN".equals(role)) {
-            List<AssetRequest> pending = allRequests.stream()
+        // If Admin, also send pending requests
+        if ("ADMIN".equals(sessionRole)) {
+            List<AssetRequest> pending = requestRepository.findAll().stream()
                 .filter(r -> r.getStatus() != null && "PENDING".equalsIgnoreCase(r.getStatus().toString()))
                 .collect(Collectors.toList());
             model.addAttribute("pendingRequests", pending);
         }
-        
-        model.addAttribute("openInventory", openFleet);
+
         return "dashboard";
     }
 }
