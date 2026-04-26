@@ -1,57 +1,50 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
-    <meta charset="UTF-8">
-    <title>Airtel | Admin Control</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;800&display=swap" rel="stylesheet">
+    <title>Airtel | Inventory Management</title>
     <style>
-        :root { --airtel-red: #E40000; --dark: #1A1A1B; --bg: #F8F9FA; }
-        body { font-family: 'Inter', sans-serif; background: var(--bg); margin: 0; color: var(--dark); }
-        .navbar { background: white; padding: 0 5%; display: flex; justify-content: space-between; align-items: center; height: 70px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); }
-        .container { padding: 30px 5%; max-width: 1200px; margin: auto; }
-        .card { background: white; padding: 25px; border-radius: 12px; margin-bottom: 25px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); border-top: 4px solid var(--airtel-red); }
-        table { width: 100%; border-collapse: collapse; margin-top: 15px; }
-        th, td { text-align: left; padding: 12px; border-bottom: 1px solid #eee; }
-        .btn { background: var(--airtel-red); color: white; padding: 10px 20px; border-radius: 6px; text-decoration: none; font-weight: bold; border: none; cursor: pointer; }
-        input { padding: 10px; border: 1px solid #ddd; border-radius: 6px; width: 250px; margin-right: 10px; }
-        .status-badge { padding: 5px 10px; border-radius: 20px; font-size: 12px; font-weight: bold; background: #eee; }
+        body { font-family: sans-serif; background: #f4f4f4; margin: 0; }
+        .nav { background: #E40000; color: white; padding: 15px; display: flex; justify-content: space-between; }
+        .container { padding: 20px; }
+        .card { background: white; padding: 20px; border-radius: 8px; margin-bottom: 20px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+        table { width: 100%; border-collapse: collapse; }
+        th, td { border: 1px solid #ddd; padding: 10px; text-align: left; }
+        .btn { padding: 8px 15px; border-radius: 4px; text-decoration: none; color: white; cursor: pointer; border: none; }
+        .btn-add { background: #E40000; }
+        .btn-del { background: #333; }
     </style>
 </head>
 <body>
-    <div class="navbar">
-        <h2 style="color:var(--airtel-red); margin:0;">airtel <span style="color:var(--dark); font-weight:400;">Admin</span></h2>
-        <a th:href="@{/logout}" style="color:var(--airtel-red); font-weight:600; text-decoration:none;">Sign Out</a>
+    <div class="nav">
+        <span>Airtel Inventory System (Admin)</span>
+        <a th:href="@{/logout}" style="color:white;">Logout</a>
     </div>
     <div class="container">
         <div class="card">
-            <h1>System Overview</h1>
-            <p>Welcome, <strong th:text="${user != null ? user.name : 'Administrator'}">Admin</strong>.</p>
-        </div>
-
-        <div class="card">
-            <h3>Register New Hardware</h3>
-            <form th:action="@{/admin/assets/save}" th:object="${asset}" method="post">
-                <input type="text" th:field="*{name}" placeholder="Asset Name" required>
-                <input type="text" th:field="*{serialNumber}" placeholder="Serial S/N" required>
-                <button type="submit" class="btn">Register Asset</button>
+            <h2>Add New Asset</h2>
+            <form th:action="@{/admin/assets/save}" method="post">
+                <input type="text" name="name" placeholder="Asset Name" required>
+                <input type="text" name="serialNumber" placeholder="Serial Number" required>
+                <button type="submit" class="btn btn-add">Save Asset</button>
             </form>
         </div>
-
         <div class="card">
-            <h3>Approval Requests</h3>
-            <table th:if="${pendingRequests != null and !pendingRequests.empty}">
-                <thead><tr><th>Employee</th><th>Resource</th><th>Action</th></tr></thead>
+            <h2>Current Inventory</h2>
+            <table>
+                <thead>
+                    <tr><th>Name</th><th>S/N</th><th>Status</th><th>Actions</th></tr>
+                </thead>
                 <tbody>
-                    <tr th:each="r : ${pendingRequests}">
-                        <td th:text="${r.user != null ? r.user.name : 'Unknown Staff'}">User</td>
-                        <td th:text="${r.asset != null ? r.asset.name : 'Unknown Asset'}">Asset</td>
+                    <tr th:each="a : ${assets}">
+                        <td th:text="${a.name}"></td>
+                        <td th:text="${a.serialNumber}"></td>
+                        <td th:text="${a.status}"></td>
                         <td>
-                            <a th:href="@{/admin/requests/approve/{id}(id=${r.id})}" class="btn" style="background:#28a745;">Approve</a>
+                            <a th:href="@{'/admin/assets/delete/' + ${a.id}}" class="btn btn-del">Delete</a>
                         </td>
                     </tr>
                 </tbody>
             </table>
-            <p th:if="${pendingRequests == null or pendingRequests.empty}">No pending requests.</p>
         </div>
     </div>
 </body>
