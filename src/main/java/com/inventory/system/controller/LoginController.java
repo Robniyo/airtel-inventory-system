@@ -21,32 +21,30 @@ public class LoginController {
 
     @PostMapping("/login")
     public String login(@RequestParam String username, @RequestParam String password, HttpSession session) {
-        // 1. ADMIN CHECK (24RP05300)
+        // 1. HARDCODED MASTER ADMIN CHECK
         if ("24RP05300".equals(username) && "24RP05300".equals(password)) {
             User admin = new User();
             admin.setUsername("24RP05300");
             admin.setName("System Administrator");
             session.setAttribute("user", admin);
-            session.setAttribute("role", "ADMIN");
+            session.setAttribute("role", "ADMIN"); // CRITICAL: This string is used in HTML
             return "redirect:/dashboard";
         }
 
-        // 2. DATABASE USER CHECK
+        // 2. STAFF DATABASE CHECK
         Optional<User> userOpt = userRepository.findByUsername(username);
         if (userOpt.isPresent() && userOpt.get().getPassword().equals(password)) {
             session.setAttribute("user", userOpt.get());
-            session.setAttribute("role", "STAFF");
+            session.setAttribute("role", "STAFF"); // CRITICAL: This string is used in HTML
             return "redirect:/dashboard";
         }
 
-        return "redirect:/login?error";
+        return "redirect:/login?error=invalid";
     }
 
     @GetMapping("/logout")
     public String logout(HttpSession session) {
-        if (session != null) {
-            session.invalidate();
-        }
+        if (session != null) session.invalidate();
         return "redirect:/login?logout";
     }
 }
