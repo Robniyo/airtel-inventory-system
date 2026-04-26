@@ -10,6 +10,7 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import javax.servlet.http.HttpSession;
 import java.util.ArrayList;
+import java.util.List;
 
 @Controller
 public class DashboardController {
@@ -25,21 +26,24 @@ public class DashboardController {
         User user = (User) session.getAttribute("user");
         String role = (String) session.getAttribute("role");
 
-        // Kick out if not logged in
-        if (user == null || role == null) return "redirect:/login";
+        // Safety: If session is lost, go back to login
+        if (user == null || role == null) {
+            return "redirect:/login";
+        }
 
-        // Data for both pages
+        // Shared data for both dashboards
+        List<Asset> allAssets = assetRepository.findAll();
         model.addAttribute("user", user);
-        model.addAttribute("assets", assetRepository.findAll());
-        model.addAttribute("totalAssets", assetRepository.count());
+        model.addAttribute("assets", allAssets != null ? allAssets : new ArrayList<>());
+        model.addAttribute("totalAssets", allAssets != null ? allAssets.size() : 0);
 
-        // THE TRAFFIC COP LOGIC
+        // Separate Logic for Admin vs Staff
         if ("ADMIN".equals(role)) {
-            model.addAttribute("asset", new Asset()); // Form object for Admin
+            model.addAttribute("asset", new Asset()); // For the 'Add Asset' form
             model.addAttribute("pendingRequests", requestRepository.findAll());
-            return "admin_dashboard"; // This looks for admin_dashboard.html
+            return "admin_dashboard"; // This serves admin_dashboard.html
         } else {
-            return "staff_dashboard"; // This looks for staff_dashboard.html
+            return "staff_dashboard"; // This serves staff_dashboard.html
         }
     }
 }
