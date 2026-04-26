@@ -26,24 +26,30 @@ public class DashboardController {
         User user = (User) session.getAttribute("user");
         String role = (String) session.getAttribute("role");
 
-        // Safety: If session is lost, go back to login
+        // 1. Session check
         if (user == null || role == null) {
+            System.out.println(">>> DASHBOARD REJECTED: No session found.");
             return "redirect:/login";
         }
 
-        // Shared data for both dashboards
+        // 2. Load Shared Data
         List<Asset> allAssets = assetRepository.findAll();
         model.addAttribute("user", user);
         model.addAttribute("assets", allAssets != null ? allAssets : new ArrayList<>());
         model.addAttribute("totalAssets", allAssets != null ? allAssets.size() : 0);
 
-        // Separate Logic for Admin vs Staff
-        if ("ADMIN".equals(role)) {
-            model.addAttribute("asset", new Asset()); // For the 'Add Asset' form
+        // 3. LOGGING FOR DEBUGGING (Check your Render logs for this!)
+        System.out.println(">>> ACCESSING DASHBOARD: User=" + user.getUsername() + " | Role=" + role);
+
+        // 4. Forced Redirection based on Role
+        if ("ADMIN".equalsIgnoreCase(role)) {
+            model.addAttribute("asset", new Asset()); // Blank asset for the 'Add' form
             model.addAttribute("pendingRequests", requestRepository.findAll());
-            return "admin_dashboard"; // This serves admin_dashboard.html
+            System.out.println(">>> LOADING: admin_dashboard.html");
+            return "admin_dashboard"; 
         } else {
-            return "staff_dashboard"; // This serves staff_dashboard.html
+            System.out.println(">>> LOADING: staff_dashboard.html");
+            return "staff_dashboard";
         }
     }
 }
